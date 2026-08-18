@@ -1,0 +1,12 @@
+node_modules
+.pnpm-store
+.turbo
+.env
+.env.local
+.env.*.local
+.next
+dist
+coverage
+*.log
+.DS_Store
+prisma/dev.db

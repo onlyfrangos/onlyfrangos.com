@@ -1,0 +1,17 @@
+{
+  "name": "@onlyfrangos/types",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo 'types package: no build needed'",
+    "lint": "echo 'types package: no lint target'",
+    "test": "echo 'types package: no tests'",
+    "format": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
+}

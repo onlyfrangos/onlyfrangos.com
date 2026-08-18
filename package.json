@@ -1,0 +1,23 @@
+{
+  "name": "onlyfrangos",
+  "private": true,
+  "version": "0.1.0",
+  "description": "OnlyFrangos monorepo",
+  "packageManager": "pnpm@9.12.3",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "turbo run format",
+    "db:generate": "pnpm --filter @onlyfrangos/api prisma:generate",
+    "db:migrate": "pnpm --filter @onlyfrangos/api prisma:migrate",
+    "db:seed": "pnpm --filter @onlyfrangos/api prisma:seed"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@prisma/client": "^6.0.1",
+    "prisma": "^6.0.1",
+    "turbo": "^2.0.12"
+  }
+}
