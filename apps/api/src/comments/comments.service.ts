@@ -1,23 +1,56 @@
+import { randomUUID } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 
-import { comments } from "../shared/in-memory-store";
+import { PrismaService } from "../shared/prisma.service";
 
 @Injectable()
 export class CommentsService {
-  getByPost(postId: string) {
-    return comments.filter((item) => item.postId === postId);
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getByPost(postId: string) {
+    const list = await this.prisma.comment.findMany({
+      where: { postId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: {
+          include: {
+            profile: true
+          }
+        }
+      }
+    });
+
+    return list.map((item) => ({
+      id: item.id,
+      postId: item.postId,
+      userId: item.authorId,
+      content: item.content,
+      createdAt: item.createdAt.toISOString(),
+      author: {
+        id: item.author.id,
+        username: item.author.username,
+        name: item.author.profile?.name ?? item.author.username,
+        avatarUrl: item.author.profile?.avatarUrl ?? ""
+      }
+    }));
   }
 
-  create(postId: string, input: { userId: string; content: string }) {
-    const newComment = {
-      id: crypto.randomUUID(),
+  async create(postId: string, input: { userId: string; content: string }) {
+    const created = await this.prisma.comment.create({
+      data: {
+        id: randomUUID(),
+        postId,
+        authorId: input.userId,
+        content: input.content
+      }
+    });
+
+    return {
+      id: created.id,
       postId,
       userId: input.userId,
-      content: input.content,
-      createdAt: new Date().toISOString()
+      content: created.content,
+      createdAt: created.createdAt.toISOString()
     };
-
-    comments.push(newComment);
-    return newComment;
   }
 }

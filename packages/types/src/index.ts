@@ -11,7 +11,15 @@ export type FeedPost = {
   imageUrl: string;
   createdAt: string;
   likeCount: number;
+  commentCount: number;
   author: FeedAuthor;
+};
+
+export type UserPost = {
+  id: string;
+  caption: string;
+  imageUrl: string;
+  createdAt: string;
 };
 
 export type CursorPage<T> = {
@@ -29,6 +37,8 @@ export type UserProfile = {
   bio: string;
   avatarUrl: string;
   postCount: number;
+  followersCount: number;
+  followingCount: number;
   profile: {
     gym: string | null;
     location: string | null;

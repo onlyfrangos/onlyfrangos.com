@@ -1,17 +1,22 @@
-import type { FeedPost } from "../../../lib/mock-data";
+import type { FeedPost } from "@onlyfrangos/types";
 
 type PostCardProps = {
   post: FeedPost;
 };
 
 export function PostCard({ post }: PostCardProps) {
+  const createdAtLabel = new Date(post.createdAt).toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short"
+  });
+
   return (
     <article className="overflow-hidden rounded-2xl border border-of-border bg-of-surface shadow-card">
       <div className="flex items-center gap-3 border-b border-of-border px-4 py-3">
-        <img src={post.avatarUrl} alt={post.username} className="h-10 w-10 rounded-full object-cover" />
+        <img src={post.author.avatarUrl} alt={post.author.username} className="h-10 w-10 rounded-full object-cover" />
         <div>
-          <p className="text-sm font-semibold">@{post.username}</p>
-          <p className="text-xs text-of-muted">{post.name}</p>
+          <p className="text-sm font-semibold">@{post.author.username}</p>
+          <p className="text-xs text-of-muted">{post.author.name}</p>
         </div>
       </div>
 
@@ -27,11 +32,11 @@ export function PostCard({ post }: PostCardProps) {
         </div>
 
         <p className="text-sm">
-          <span className="font-semibold">@{post.username}</span> {post.caption}
+          <span className="font-semibold">@{post.author.username}</span> {post.caption}
         </p>
 
         <p className="text-xs text-of-muted">
-          {post.likes} curtidas · {post.comments} comentarios · {post.createdAtLabel}
+          {post.likeCount} curtidas · {post.commentCount} comentarios · {createdAtLabel}
         </p>
       </div>
     </article>

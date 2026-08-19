@@ -1,51 +1,91 @@
+import { randomUUID } from "node:crypto";
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { MediaType } from "@prisma/client";
 
-import { posts, users } from "../shared/in-memory-store";
+import { PrismaService } from "../shared/prisma.service";
 
 @Injectable()
 export class PostsService {
-  getById(id: string) {
-    const post = posts.find((item) => item.id === id);
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getById(id: string) {
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+      include: {
+        media: {
+          orderBy: { order: "asc" },
+          take: 1
+        },
+        author: {
+          include: {
+            profile: true
+          }
+        }
+      }
+    });
 
     if (!post) {
       throw new NotFoundException("Post not found");
     }
 
-    const author = users.find((user) => user.id === post.authorId);
+    const firstMedia = post.media[0];
 
     return {
-      ...post,
-      author: author
-        ? {
-            id: author.id,
-            username: author.username,
-            avatarUrl: author.avatarUrl
+      id: post.id,
+      authorId: post.authorId,
+      caption: post.caption,
+      imageUrl: firstMedia?.mediaUrl ?? "",
+      createdAt: post.createdAt.toISOString(),
+      author: {
+        id: post.author.id,
+        username: post.author.username,
+        avatarUrl: post.author.profile?.avatarUrl ?? ""
+      }
+    };
+  }
+
+  async create(input: { authorId: string; caption: string; imageUrl: string }) {
+    const postId = randomUUID();
+
+    const created = await this.prisma.post.create({
+      data: {
+        id: postId,
+        authorId: input.authorId,
+        caption: input.caption,
+        media: {
+          create: {
+            id: randomUUID(),
+            mediaUrl: input.imageUrl,
+            mediaType: MediaType.IMAGE,
+            order: 0
           }
-        : null
+        }
+      },
+      include: {
+        media: {
+          orderBy: { order: "asc" },
+          take: 1
+        }
+      }
+    });
+
+    return {
+      id: created.id,
+      authorId: created.authorId,
+      caption: created.caption,
+      imageUrl: created.media[0]?.mediaUrl ?? "",
+      createdAt: created.createdAt.toISOString()
     };
   }
 
-  create(input: { authorId: string; caption: string; imageUrl: string }) {
-    const newPost = {
-      id: crypto.randomUUID(),
-      authorId: input.authorId,
-      caption: input.caption,
-      imageUrl: input.imageUrl,
-      createdAt: new Date().toISOString()
-    };
+  async remove(id: string) {
+    const exists = await this.prisma.post.findUnique({ where: { id }, select: { id: true } });
 
-    posts.unshift(newPost);
-    return newPost;
-  }
-
-  remove(id: string) {
-    const index = posts.findIndex((item) => item.id === id);
-
-    if (index === -1) {
+    if (!exists) {
       throw new NotFoundException("Post not found");
     }
 
-    posts.splice(index, 1);
+    await this.prisma.post.delete({ where: { id } });
     return { success: true };
   }
 }

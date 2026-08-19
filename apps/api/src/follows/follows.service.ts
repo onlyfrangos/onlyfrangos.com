@@ -1,22 +1,39 @@
+import { randomUUID } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 
-import { follows } from "../shared/in-memory-store";
+import { PrismaService } from "../shared/prisma.service";
 
 @Injectable()
 export class FollowsService {
-  follow(followerId: string, followingId: string) {
-    const exists = follows.some((item) => item.followerId === followerId && item.followingId === followingId);
-    if (!exists) {
-      follows.push({ followerId, followingId });
-    }
+  constructor(private readonly prisma: PrismaService) {}
+
+  async follow(followerId: string, followingId: string) {
+    await this.prisma.follow.upsert({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId
+        }
+      },
+      update: {},
+      create: {
+        id: randomUUID(),
+        followerId,
+        followingId
+      }
+    });
+
     return { following: true };
   }
 
-  unfollow(followerId: string, followingId: string) {
-    const index = follows.findIndex((item) => item.followerId === followerId && item.followingId === followingId);
-    if (index !== -1) {
-      follows.splice(index, 1);
-    }
+  async unfollow(followerId: string, followingId: string) {
+    await this.prisma.follow.deleteMany({
+      where: {
+        followerId,
+        followingId
+      }
+    });
+
     return { following: false };
   }
 }

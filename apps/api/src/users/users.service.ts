@@ -1,49 +1,88 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 
-import { posts, users } from "../shared/in-memory-store";
-import { findUserByUsername, sortPostsChronologically } from "../shared/helpers";
+import { PrismaService } from "../shared/prisma.service";
 
 @Injectable()
 export class UsersService {
-  getByUsername(username: string) {
-    const user = findUserByUsername(users, username);
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      include: {
+        profile: {
+          include: {
+            gym: true
+          }
+        },
+        _count: {
+          select: {
+            posts: true
+          }
+        }
+      }
+    });
 
     if (!user) {
       throw new NotFoundException("User not found");
     }
 
-    const postCount = posts.filter((post) => post.authorId === user.id).length;
+    const [followersCount, followingCount] = await Promise.all([
+      this.prisma.follow.count({ where: { followingId: user.id } }),
+      this.prisma.follow.count({ where: { followerId: user.id } })
+    ]);
+
+    const profile = user.profile;
+    const shouldShowPhysicalInfo = Boolean(profile?.showPhysicalInfo);
 
     return {
       id: user.id,
       username: user.username,
-      name: user.name,
-      bio: user.bio,
-      avatarUrl: user.avatarUrl,
-      postCount,
+      name: profile?.name ?? user.username,
+      bio: profile?.bio ?? "",
+      avatarUrl: profile?.avatarUrl ?? "",
+      postCount: user._count.posts,
+      followersCount,
+      followingCount,
       profile: {
-        gym: user.showGym ? user.gym : null,
-        location: user.showLocation ? user.location : null,
-        locationUrl: user.showLocation ? user.locationUrl : null,
-        fitnessGoal: user.fitnessGoal,
-        physicalInfo: user.showPhysicalInfo
+        gym: profile?.showGym ? (profile.gym?.name ?? null) : null,
+        location: profile?.showLocation ? profile.location : null,
+        locationUrl: profile?.showLocation ? profile.locationUrl : null,
+        fitnessGoal: profile?.fitnessGoal,
+        physicalInfo: shouldShowPhysicalInfo
           ? {
-              weight: user.weight,
-              bodyFat: user.bodyFat,
-              arm: user.arm
+              weight: profile?.weight,
+              bodyFat: profile?.bodyFat,
+              arm: profile?.arm
             }
           : null
       }
     };
   }
 
-  getPostsByUsername(username: string) {
-    const user = findUserByUsername(users, username);
+  async getPostsByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({ where: { username } });
 
     if (!user) {
       throw new NotFoundException("User not found");
     }
 
-    return sortPostsChronologically(posts.filter((post) => post.authorId === user.id));
+    const userPosts = await this.prisma.post.findMany({
+      where: { authorId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        media: {
+          orderBy: { order: "asc" },
+          take: 1
+        }
+      }
+    });
+
+    return userPosts.map((post) => ({
+      id: post.id,
+      caption: post.caption,
+      imageUrl: post.media[0]?.mediaUrl ?? "",
+      createdAt: post.createdAt.toISOString()
+    }));
   }
 }

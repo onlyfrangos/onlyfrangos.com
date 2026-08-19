@@ -1,22 +1,48 @@
 import { AppShell } from "../../../components/layout/app-shell";
 import { mockProfile } from "../../../lib/mock-data";
+import { sdk } from "../../../lib/sdk";
 
 type ProfilePageProps = {
   username: string;
 };
 
-export function ProfilePage({ username }: ProfilePageProps) {
-  const profile = { ...mockProfile, username };
+async function loadProfile(username: string) {
+  try {
+    const [profile, posts] = await Promise.all([sdk.getUserByUsername(username), sdk.getUserPosts(username)]);
+
+    return {
+      id: profile.id,
+      username: profile.username,
+      name: profile.name,
+      bio: profile.bio,
+      avatarUrl: profile.avatarUrl,
+      postsCount: profile.postCount,
+      followersCount: profile.followersCount,
+      followingCount: profile.followingCount,
+      goal: profile.profile.fitnessGoal ?? "Sem meta publica",
+      gym: profile.profile.gym ?? "Privado",
+      location: profile.profile.location ?? "Privado",
+      locationUrl: profile.profile.locationUrl ?? "https://maps.google.com",
+      publicStats: {
+        weight: profile.profile.physicalInfo?.weight ?? "Privado",
+        bodyFat: profile.profile.physicalInfo?.bodyFat ?? "Privado",
+        arm: profile.profile.physicalInfo?.arm ?? "Privado"
+      },
+      posts
+    };
+  } catch {
+    return { ...mockProfile, username };
+  }
+}
+
+export async function ProfilePage({ username }: ProfilePageProps) {
+  const profile = await loadProfile(username);
 
   return (
     <AppShell>
       <section className="rounded-2xl border border-of-border bg-of-surface/85 p-4 sm:p-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          <img
-            src="https://images.unsplash.com/photo-1517963628607-235ccdd5476d?q=80&w=400"
-            alt={profile.username}
-            className="h-24 w-24 rounded-full border border-of-border object-cover sm:h-32 sm:w-32"
-          />
+          <img src={profile.avatarUrl} alt={profile.username} className="h-24 w-24 rounded-full border border-of-border object-cover sm:h-32 sm:w-32" />
 
           <div className="flex-1 space-y-4">
             <div className="flex flex-wrap items-center gap-3">

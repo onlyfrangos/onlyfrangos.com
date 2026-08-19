@@ -1,4 +1,4 @@
-import type { CursorPage, FeedPost, UserProfile } from "@onlyfrangos/types";
+import type { CursorPage, FeedPost, UserPost, UserProfile } from "@onlyfrangos/types";
 
 type SdkConfig = {
   baseUrl: string;
@@ -8,6 +8,7 @@ export function createOnlyFrangosSdk(config: SdkConfig) {
   const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
     const response = await fetch(`${config.baseUrl}${path}`, {
       ...init,
+      cache: "no-store",
       headers: {
         "content-type": "application/json",
         ...(init?.headers ?? {})
@@ -33,7 +34,7 @@ export function createOnlyFrangosSdk(config: SdkConfig) {
       return request<UserProfile>(`/users/${username}`);
     },
     getUserPosts(username: string) {
-      return request<FeedPost[]>(`/users/${username}/posts`);
+      return request<UserPost[]>(`/users/${username}/posts`);
     }
   };
 }

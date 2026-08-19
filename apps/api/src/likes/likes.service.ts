@@ -1,22 +1,39 @@
+import { randomUUID } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 
-import { likes } from "../shared/in-memory-store";
+import { PrismaService } from "../shared/prisma.service";
 
 @Injectable()
 export class LikesService {
-  like(postId: string, userId: string) {
-    const exists = likes.some((item) => item.postId === postId && item.userId === userId);
-    if (!exists) {
-      likes.push({ postId, userId });
-    }
+  constructor(private readonly prisma: PrismaService) {}
+
+  async like(postId: string, userId: string) {
+    await this.prisma.like.upsert({
+      where: {
+        userId_postId: {
+          userId,
+          postId
+        }
+      },
+      update: {},
+      create: {
+        id: randomUUID(),
+        postId,
+        userId
+      }
+    });
+
     return { liked: true };
   }
 
-  unlike(postId: string, userId: string) {
-    const index = likes.findIndex((item) => item.postId === postId && item.userId === userId);
-    if (index !== -1) {
-      likes.splice(index, 1);
-    }
+  async unlike(postId: string, userId: string) {
+    await this.prisma.like.deleteMany({
+      where: {
+        postId,
+        userId
+      }
+    });
+
     return { liked: false };
   }
 }
