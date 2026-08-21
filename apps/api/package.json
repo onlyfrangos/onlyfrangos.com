@@ -9,9 +9,9 @@
     "lint": "echo 'api lint setup pending'",
     "test": "jest",
     "format": "prettier --check .",
-    "prisma:generate": "prisma generate --schema ../../prisma/schema.prisma",
-    "prisma:migrate": "prisma migrate dev --schema ../../prisma/schema.prisma",
-    "prisma:seed": "node ../../prisma/seed.mjs"
+    "prisma:generate": "cd ../.. && prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate": "cd ../.. && prisma migrate dev --schema prisma/schema.prisma",
+    "prisma:seed": "cd ../.. && node prisma/seed.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.0.1",

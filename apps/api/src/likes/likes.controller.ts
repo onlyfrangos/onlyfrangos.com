@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Param, Post } from "@nestjs/common";
+import { Controller, Delete, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { LikesService } from "./likes.service";
 
 @ApiTags("likes")
@@ -8,13 +9,15 @@ import { LikesService } from "./likes.service";
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  like(@Param("id") postId: string, @Body() body: { userId: string }) {
-    return this.likesService.like(postId, body.userId);
+  like(@Param("id") postId: string, @Req() request: { user: { sub: string } }) {
+    return this.likesService.like(postId, request.user.sub);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete()
-  unlike(@Param("id") postId: string, @Body() body: { userId: string }) {
-    return this.likesService.unlike(postId, body.userId);
+  unlike(@Param("id") postId: string, @Req() request: { user: { sub: string } }) {
+    return this.likesService.unlike(postId, request.user.sub);
   }
 }

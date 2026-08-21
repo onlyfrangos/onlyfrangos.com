@@ -6,39 +6,28 @@ export type AuthUser = {
 
 export type AuthSession = {
   accessToken: string;
-  refreshToken: string;
   user: AuthUser;
 };
 
-const AUTH_STORAGE_KEY = "onlyfrangos-auth";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api/v1";
+let inMemorySession: AuthSession | null = null;
 
 export function saveAuthSession(session: AuthSession) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  inMemorySession = session;
 }
 
 export function getAuthSession(): AuthSession | null {
-  if (typeof window === "undefined") return null;
-
-  const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!raw) return null;
-
-  try {
-    return JSON.parse(raw) as AuthSession;
-  } catch {
-    return null;
-  }
+  return inMemorySession;
 }
 
 export function clearAuthSession() {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(AUTH_STORAGE_KEY);
+  inMemorySession = null;
 }
 
 export async function loginUser(payload: { email: string; password: string }) {
   const response = await fetch(`${baseUrl}/auth/login`, {
     method: "POST",
+    credentials: "include",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
   });
@@ -56,6 +45,7 @@ export async function loginUser(payload: { email: string; password: string }) {
 export async function registerUser(payload: { username: string; email: string; password: string }) {
   const response = await fetch(`${baseUrl}/auth/register`, {
     method: "POST",
+    credentials: "include",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
   });
@@ -68,4 +58,71 @@ export async function registerUser(payload: { username: string; email: string; p
   const session = (await response.json()) as AuthSession;
   saveAuthSession(session);
   return session;
+}
+
+export async function refreshAuthSession() {
+  const response = await fetch(`${baseUrl}/auth/refresh`, {
+    method: "POST",
+    credentials: "include"
+  });
+
+  if (!response.ok) {
+    clearAuthSession();
+    return null;
+  }
+
+  const payload = (await response.json()) as { accessToken?: string; user?: AuthUser };
+  if (!payload.accessToken) {
+    clearAuthSession();
+    return null;
+  }
+
+  const currentSession = getAuthSession();
+  const user = payload.user ?? currentSession?.user;
+
+  if (!user) {
+    clearAuthSession();
+    return null;
+  }
+
+  const nextSession = {
+    accessToken: payload.accessToken,
+    user
+  };
+
+  saveAuthSession(nextSession);
+  return nextSession;
+}
+
+export async function apiFetch(input: string, init: RequestInit = {}) {
+  const session = getAuthSession();
+  const headers = new Headers(init.headers || {});
+
+  if (session?.accessToken) {
+    headers.set("Authorization", `Bearer ${session.accessToken}`);
+  }
+
+  const response = await fetch(`${baseUrl}${input.startsWith("/") ? input : `/${input}`}`, {
+    ...init,
+    credentials: "include",
+    headers
+  });
+
+  if (response.status !== 401) {
+    return response;
+  }
+
+  const refreshedSession = await refreshAuthSession();
+  if (!refreshedSession) {
+    throw new Error("Sessão expirada");
+  }
+
+  const retryHeaders = new Headers(init.headers || {});
+  retryHeaders.set("Authorization", `Bearer ${refreshedSession.accessToken}`);
+
+  return fetch(`${baseUrl}${input.startsWith("/") ? input : `/${input}`}`, {
+    ...init,
+    credentials: "include",
+    headers: retryHeaders
+  });
 }

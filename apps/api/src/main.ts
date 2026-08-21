@@ -7,6 +7,14 @@ import { AppModule } from "./shared/app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const webPort = process.env.WEB_PORT ?? "3000";
+  app.enableCors({
+    origin: [`http://localhost:${webPort}`, `http://127.0.0.1:${webPort}`],
+    credentials: true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  });
+
   app.setGlobalPrefix("api/v1");
   app.useGlobalPipes(
     new ValidationPipe({

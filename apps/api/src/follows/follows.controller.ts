@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Param, Post } from "@nestjs/common";
+import { Controller, Delete, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { FollowsService } from "./follows.service";
 
 @ApiTags("follows")
@@ -8,13 +9,15 @@ import { FollowsService } from "./follows.service";
 export class FollowsController {
   constructor(private readonly followsService: FollowsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  follow(@Param("id") followingId: string, @Body() body: { followerId: string }) {
-    return this.followsService.follow(body.followerId, followingId);
+  follow(@Param("id") followingId: string, @Req() request: { user: { sub: string } }) {
+    return this.followsService.follow(request.user.sub, followingId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete()
-  unfollow(@Param("id") followingId: string, @Body() body: { followerId: string }) {
-    return this.followsService.unfollow(body.followerId, followingId);
+  unfollow(@Param("id") followingId: string, @Req() request: { user: { sub: string } }) {
+    return this.followsService.unfollow(request.user.sub, followingId);
   }
 }

@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
@@ -14,20 +11,11 @@ import { PostsModule } from "../posts/posts.module";
 import { UsersModule } from "../users/users.module";
 import { PrismaModule } from "./prisma.module";
 
-const possibleEnvPaths = [
-  path.resolve(process.cwd(), ".env"),
-  path.resolve(process.cwd(), "../../.env"),
-  path.resolve(__dirname, "../../../.env"),
-  path.resolve(__dirname, "../../../../.env")
-].filter((value, index, array) => array.indexOf(value) === index);
-
-const envFilePath = possibleEnvPaths.find((file) => fs.existsSync(file)) ?? possibleEnvPaths[0];
-
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [envFilePath]
+      envFilePath: [".env", "../../.env"]
     }),
     PrismaModule,
     AuthModule,

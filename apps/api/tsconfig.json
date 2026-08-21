@@ -3,7 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "node16",
     "module": "Node16",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "typeRoots": ["./src/types", "./node_modules/@types"],
     "declaration": true,
     "removeComments": true,

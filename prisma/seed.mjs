@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+const seedPasswordHash = "$2b$12$iVrQJ3ccjMqwIRKB2I3oeuSSQQOAbi56UYrIAtl7D88DG9fZVYHJq";
 
 const ids = {
   users: {
@@ -42,19 +43,19 @@ async function main() {
         id: ids.users.extra,
         email: "extra@onlyfrangos.dev",
         username: "extrastickersbr",
-        passwordHash: "dev_hash"
+        passwordHash: seedPasswordHash
       },
       {
         id: ids.users.fabio,
         email: "fabio@onlyfrangos.dev",
         username: "fabiocut",
-        passwordHash: "dev_hash"
+        passwordHash: seedPasswordHash
       },
       {
         id: ids.users.coach,
         email: "coach@onlyfrangos.dev",
         username: "coachfrango",
-        passwordHash: "dev_hash"
+        passwordHash: seedPasswordHash
       }
     ]
   });

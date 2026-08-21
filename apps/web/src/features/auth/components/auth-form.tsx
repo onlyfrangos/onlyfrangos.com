@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { loginUser, registerUser } from "../../../lib/auth";
 
@@ -11,6 +11,8 @@ type AuthFormProps = {
 
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") ?? "/feed";
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -38,7 +40,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         });
       }
 
-      router.push("/feed");
+      router.push(decodeURIComponent(redirectTo));
       router.refresh();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Erro ao processar autenticação");
