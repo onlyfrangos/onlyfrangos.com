@@ -1,15 +1,15 @@
-# Code of Conduct
+# Código de Conduta
 
-## Our pledge
+## Nosso compromisso
 
-We are committed to making participation in this project a harassment-free experience for everyone.
+Estamos comprometidos em tornar a participação neste projeto uma experiência livre de assédio para todas as pessoas.
 
-## Our standards
+## Nossos padrões
 
-- Be respectful and constructive.
-- Assume good intent.
-- Welcome newcomers and different perspectives.
+- Seja respeitoso e construtivo.
+- Presuma boa-fé.
+- Dê boas-vindas a novos participantes e a diferentes perspectivas.
 
-## Enforcement
+## Aplicação
 
-Project maintainers are responsible for clarifying standards and taking corrective action in response to unacceptable behavior.
+Os responsáveis pela manutenção do projeto são encarregados de esclarecer os padrões de conduta e tomar medidas corretivas em resposta a comportamentos inaceitáveis.
