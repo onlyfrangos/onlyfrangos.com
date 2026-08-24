@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Req, Res, UnauthorizedException } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UnauthorizedException
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
@@ -49,6 +58,11 @@ export class AuthController {
     }
 
     return token;
+  }
+
+  @Get("username-availability")
+  usernameAvailability(@Query("username") username = "") {
+    return this.authService.isUsernameAvailable(username);
   }
 
   @Post("register")

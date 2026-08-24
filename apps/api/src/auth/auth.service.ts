@@ -13,16 +13,41 @@ export class AuthService {
   ) {}
 
   private signAccessToken(user: { id: string; email: string; username: string }) {
-    return this.jwtService.sign({ sub: user.id, email: user.email, username: user.username }, { expiresIn: "15m" });
+    return this.jwtService.sign(
+      { sub: user.id, email: user.email, username: user.username },
+      { expiresIn: "15m" }
+    );
   }
 
   private signRefreshToken(user: { id: string; email: string; username: string }) {
     return this.jwtService.sign({ sub: user.id, type: "refresh" }, { expiresIn: "7d" });
   }
 
-  async register(body: { username: string; email: string; password: string }) {
-    const normalizedUsername = body.username.trim();
+  async isUsernameAvailable(username: string) {
+    const normalizedUsername = username.trim().toLowerCase();
+
+    if (!/^[a-z0-9._]{3,}$/.test(normalizedUsername)) {
+      return { username: normalizedUsername, available: false };
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { username: normalizedUsername },
+      select: { id: true }
+    });
+
+    return { username: normalizedUsername, available: !existingUser };
+  }
+
+  async register(body: {
+    username: string;
+    email: string;
+    password: string;
+    fullName: string;
+    age: number;
+  }) {
+    const normalizedUsername = body.username.trim().toLowerCase();
     const normalizedEmail = body.email.trim().toLowerCase();
+    const normalizedFullName = body.fullName.trim();
 
     const existingUser = await this.prisma.user.findFirst({
       where: {
@@ -45,7 +70,8 @@ export class AuthService {
         profile: {
           create: {
             id: randomUUID(),
-            name: normalizedUsername,
+            name: normalizedFullName,
+            age: body.age,
             bio: "",
             showGym: true,
             showLocation: true,

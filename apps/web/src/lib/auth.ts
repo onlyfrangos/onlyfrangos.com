@@ -53,7 +53,25 @@ export async function loginUser(payload: { email: string; password: string }) {
   return session;
 }
 
-export async function registerUser(payload: { username: string; email: string; password: string }) {
+export async function checkUsernameAvailability(username: string) {
+  const response = await fetch(
+    `${baseUrl}/auth/username-availability?username=${encodeURIComponent(username)}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Não foi possível verificar o nome de usuário");
+  }
+
+  return (await response.json()) as { username: string; available: boolean };
+}
+
+export async function registerUser(payload: {
+  username: string;
+  email: string;
+  password: string;
+  fullName: string;
+  age: number;
+}) {
   const response = await fetch(`${baseUrl}/auth/register`, {
     method: "POST",
     credentials: "include",

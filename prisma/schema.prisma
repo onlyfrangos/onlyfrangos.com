@@ -8,25 +8,26 @@ datasource db {
 }
 
 model User {
-  id           String    @id @db.Uuid
-  email        String    @unique
-  username     String    @unique
+  id           String   @id @db.Uuid
+  email        String   @unique
+  username     String   @unique
   passwordHash String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  profile      Profile?
-  posts        Post[]
-  comments     Comment[]
-  likes        Like[]
-  following    Follow[]  @relation("Following")
-  followers    Follow[]  @relation("Followers")
+  profile   Profile?
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+  following Follow[]  @relation("Following")
+  followers Follow[]  @relation("Followers")
 }
 
 model Profile {
   id               String   @id @db.Uuid
   userId           String   @unique @db.Uuid
   name             String
+  age              Int?
   bio              String?
   avatarUrl        String?
   gymId            String?  @db.Uuid
@@ -42,33 +43,33 @@ model Profile {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gym              Gym?     @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gym  Gym? @relation(fields: [gymId], references: [id], onDelete: SetNull)
 }
 
 model Post {
-  id         String      @id @db.Uuid
-  authorId   String      @db.Uuid
-  caption    String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id        String   @id @db.Uuid
+  authorId  String   @db.Uuid
+  caption   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  author     User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  media      PostMedia[]
-  likes      Like[]
-  comments   Comment[]
+  author   User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  media    PostMedia[]
+  likes    Like[]
+  comments Comment[]
 
   @@index([createdAt(sort: Desc)])
 }
 
 model PostMedia {
-  id        String   @id @db.Uuid
-  postId    String   @db.Uuid
+  id        String    @id @db.Uuid
+  postId    String    @db.Uuid
   mediaUrl  String
   mediaType MediaType
-  order     Int      @default(0)
+  order     Int       @default(0)
 
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId, order])
 }
@@ -79,8 +80,8 @@ model Follow {
   followingId String   @db.Uuid
   createdAt   DateTime @default(now())
 
-  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
   @@index([followingId])
@@ -92,8 +93,8 @@ model Like {
   postId    String   @db.Uuid
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
   @@index([postId])
@@ -106,20 +107,20 @@ model Comment {
   content   String
   createdAt DateTime @default(now())
 
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([postId, createdAt(sort: Desc)])
 }
 
 model Gym {
-  id        String    @id @db.Uuid
+  id        String   @id @db.Uuid
   name      String
   city      String
   state     String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 
-  profiles  Profile[]
+  profiles Profile[]
 }
 
 enum MediaType {
