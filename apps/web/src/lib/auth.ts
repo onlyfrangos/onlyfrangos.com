@@ -24,6 +24,17 @@ export function clearAuthSession() {
   inMemorySession = null;
 }
 
+export async function logoutUser() {
+  try {
+    await fetch(`${baseUrl}/auth/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+  } finally {
+    clearAuthSession();
+  }
+}
+
 export async function loginUser(payload: { email: string; password: string }) {
   const response = await fetch(`${baseUrl}/auth/login`, {
     method: "POST",

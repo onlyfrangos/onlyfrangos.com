@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { apiFetch, clearAuthSession, saveAuthSession } from "./auth";
+import { apiFetch, clearAuthSession, getAuthSession, logoutUser, saveAuthSession } from "./auth";
 
 describe("apiFetch", () => {
   beforeEach(() => {
@@ -62,5 +62,29 @@ describe("apiFetch", () => {
     expect(readHeader(firstCallInit.headers, "Authorization")).toBe("Bearer expired-token");
     expect(secondCallInit.credentials).toBe("include");
     expect(readHeader(thirdCallInit.headers, "Authorization")).toBe("Bearer new-access-token");
+  });
+});
+
+describe("logoutUser", () => {
+  beforeEach(() => {
+    clearAuthSession();
+    vi.restoreAllMocks();
+  });
+
+  it("clears the local session and invalidates the refresh cookie", async () => {
+    saveAuthSession({
+      accessToken: "access-token",
+      user: { id: "user-1", email: "user@example.com", username: "user" }
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock as typeof fetch);
+
+    await logoutUser();
+
+    expect(getAuthSession()).toBeNull();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:3001/api/v1/auth/logout",
+      { method: "POST", credentials: "include" }
+    );
   });
 });

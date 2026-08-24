@@ -11,6 +11,7 @@ type AppShellProps = {
   rightAside?: React.ReactNode;
   rightAsideClassName?: string;
   mobileNavItems?: AppShellNavItem[];
+  mobileNavigation?: React.ReactNode;
 };
 
 const navItems: AppShellNavItem[] = [
@@ -25,7 +26,8 @@ export function AppShell({
   leftAside,
   rightAside,
   rightAsideClassName,
-  mobileNavItems = navItems
+  mobileNavItems = navItems,
+  mobileNavigation
 }: AppShellProps) {
   return (
     <div className="mx-auto min-h-screen w-full max-w-[1400px] px-3 pb-20 pt-4 sm:px-6 lg:grid lg:grid-cols-[240px_minmax(0,1fr)_320px] lg:gap-6 lg:px-8 lg:pb-6">
@@ -65,17 +67,19 @@ export function AppShell({
         </aside>
       ) : null}
 
-      <nav className="fixed inset-x-3 bottom-3 z-20 rounded-2xl border border-of-border bg-of-surface/95 p-2 backdrop-blur lg:hidden">
-        <ul className="grid grid-cols-4 gap-2 text-center text-sm text-of-muted">
-          {mobileNavItems.map((item) => (
-            <li key={item.label}>
-              <Link href={item.href} className="block rounded-lg px-2 py-2 hover:bg-black/25 hover:text-of-text">
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {mobileNavigation ?? (
+        <nav className="fixed inset-x-3 bottom-3 z-20 rounded-2xl border border-of-border bg-of-surface/95 p-2 backdrop-blur lg:hidden">
+          <ul className="grid grid-cols-4 gap-2 text-center text-sm text-of-muted">
+            {mobileNavItems.map((item) => (
+              <li key={item.label}>
+                <Link href={item.href} className="block rounded-lg px-2 py-2 hover:bg-black/25 hover:text-of-text">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
     </div>
   );
 }

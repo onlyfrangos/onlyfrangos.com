@@ -9,7 +9,7 @@ import type { ProfileViewData } from "../types";
 import { ProfileFitnessDashboard } from "./profile-fitness-dashboard";
 import { ProfileHeader } from "./profile-header";
 import { ProfilePostGrid } from "./profile-post-grid";
-import { ProfileSidebar } from "./profile-sidebar";
+import { ProfileMobileNavigation, ProfileSidebar } from "./profile-sidebar";
 import { ProfileTabs } from "./profile-tabs";
 import { ProfileTopBar } from "./profile-top-bar";
 
@@ -72,6 +72,7 @@ export async function ProfilePage({ username }: ProfilePageProps) {
     <AppShell
       leftAside={<ProfileSidebar username={profile.username} />}
       rightAsideClassName="border-none bg-transparent p-0"
+      mobileNavigation={<ProfileMobileNavigation username={profile.username} />}
       rightAside={
         <div className="sticky top-6">
           <ProfileFitnessDashboard

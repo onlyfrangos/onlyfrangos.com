@@ -2,7 +2,7 @@ import type { FeedPost, UserSuggestion } from "@onlyfrangos/types";
 
 import { AppShell } from "../../../components/layout/app-shell";
 import { sdk } from "../../../lib/sdk";
-import { ProfileSidebar } from "../../profile/components/profile-sidebar";
+import { ProfileMobileNavigation, ProfileSidebar } from "../../profile/components/profile-sidebar";
 import { ProfileTopBar } from "../../profile/components/profile-top-bar";
 
 import { FeedRightAside } from "./feed-right-aside";
@@ -45,6 +45,7 @@ export async function FeedPage() {
       leftAside={<ProfileSidebar username={viewerUsername} />}
       rightAsideClassName="border-none bg-transparent p-0"
       rightAside={<FeedRightAside suggestions={suggestions} />}
+      mobileNavigation={<ProfileMobileNavigation username={viewerUsername} />}
       mobileNavItems={[
         { href: "/feed", label: "Inicio" },
         { href: `/${viewerUsername}`, label: "Perfil" },
