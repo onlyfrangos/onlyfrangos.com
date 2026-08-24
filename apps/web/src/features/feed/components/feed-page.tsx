@@ -1,7 +1,7 @@
 import type { FeedPost } from "@onlyfrangos/types";
 
 import { AppShell } from "../../../components/layout/app-shell";
-import { mockFeedPosts, mockSuggestions } from "../../../lib/mock-data";
+// removed local mock data - rely only on API
 import { sdk } from "../../../lib/sdk";
 import { ProfileSidebar } from "../../profile/components/profile-sidebar";
 import { ProfileTopBar } from "../../profile/components/profile-top-bar";
@@ -10,37 +10,34 @@ import { FeedRightAside } from "./feed-right-aside";
 
 import { PostCard } from "./post-card";
 
-async function loadFeed(): Promise<FeedPost[]> {
+async function loadFeed(): Promise<FeedPost[] | null> {
   try {
     const result = await sdk.getFeed(20);
     return result.items;
-  } catch {
-    return mockFeedPosts.map((post) => ({
-      id: post.id,
-      caption: post.caption,
-      imageUrl: post.imageUrl,
-      createdAt: new Date().toISOString(),
-      likeCount: post.likes,
-      commentCount: post.comments,
-      author: {
-        id: post.username,
-        username: post.username,
-        name: post.name,
-        avatarUrl: post.avatarUrl
-      }
-    }));
+  } catch (err) {
+    return null;
   }
 }
 
 export async function FeedPage() {
   const posts = await loadFeed();
+  if (!posts) {
+    return (
+      <AppShell leftAside={null} rightAside={null}>
+        <article className="rounded-2xl border border-of-border bg-of-surface/90 p-8 text-center text-of-muted">
+          Não foi possível carregar o feed. Tente atualizar a página.
+        </article>
+      </AppShell>
+    );
+  }
+
   const viewerUsername = posts[0]?.author.username ?? "extrastickersbr";
 
   return (
     <AppShell
       leftAside={<ProfileSidebar username={viewerUsername} />}
       rightAsideClassName="border-none bg-transparent p-0"
-      rightAside={<FeedRightAside suggestions={mockSuggestions} />}
+      rightAside={<FeedRightAside suggestions={undefined} />}
       mobileNavItems={[
         { href: "/feed", label: "Inicio" },
         { href: `/${viewerUsername}`, label: "Perfil" },
@@ -49,11 +46,6 @@ export async function FeedPage() {
       ]}
     >
       <ProfileTopBar />
-
-      <header className="mb-4 rounded-2xl border border-of-border bg-of-surface/85 px-4 py-4 sm:px-5">
-        <h1 className="text-2xl font-semibold text-of-text sm:text-3xl">Feed</h1>
-        <p className="mt-1 text-sm text-of-muted">Cronologico, sem algoritmo oculto.</p>
-      </header>
 
       <section className="space-y-4">
         {posts.length === 0 ? (

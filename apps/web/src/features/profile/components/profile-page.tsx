@@ -3,7 +3,7 @@ import type { UserPost, UserProfile } from "@onlyfrangos/types";
 import { AppShell } from "../../../components/layout/app-shell";
 import { sdk } from "../../../lib/sdk";
 
-import { createProfilePageMock } from "../mocks/profile-page-mock";
+// Removed local fallback mocks - rely only on API data
 import type { ProfileSummaryItem, ProfileViewData } from "../types";
 
 import { ProfileFitnessDashboard } from "./profile-fitness-dashboard";
@@ -19,43 +19,59 @@ type ProfilePageProps = {
 };
 
 async function loadProfile(username: string) {
-  const fallback = createProfilePageMock(username);
-
   try {
     const [profile, posts] = await Promise.all([sdk.getUserByUsername(username), sdk.getUserPosts(username)]);
 
     return {
-      ...fallback,
       id: profile.id,
       username: profile.username,
       name: profile.name,
       bio: profile.bio,
+      joinedLabel: undefined,
       avatarUrl: profile.avatarUrl,
+      gymLabel: profile.profile.gym ?? undefined,
+      goalWeightLabel: profile.profile.fitnessGoal ?? undefined,
       postsCount: formatCompactCount(profile.postCount),
       followersCount: formatCompactCount(profile.followersCount),
       followingCount: formatCompactCount(profile.followingCount),
-      goalWeightLabel: profile.profile.fitnessGoal ?? fallback.goalWeightLabel,
-      gymLabel: profile.profile.gym ?? fallback.gymLabel,
-      naturalLabel: fallback.naturalLabel,
       actionMode: username === "extrastickersbr" ? "self" : "visitor",
-      fitnessSummary: buildSummary(profile, fallback.fitnessSummary),
-      posts: buildPosts(posts, profile, fallback),
-      gymCard: fallback.gymCard
+      fitnessSummary: buildSummary(profile, []),
+      posts: buildPosts(posts, profile, { posts: [] } as any),
+      workoutFrequency: undefined,
+      tabs: [
+        { id: "posts", label: "Publicacoes" }
+      ],
+      gymCard: profile.profile.gym
         ? {
-            ...fallback.gymCard,
-            name: profile.profile.gym ?? fallback.gymCard.name,
-            addressLine1: profile.profile.location ?? fallback.gymCard.addressLine1,
-            ctaHref: profile.profile.locationUrl ?? fallback.gymCard.ctaHref
+            name: profile.profile.gym,
+            addressLine1: profile.profile.location ?? "",
+            addressLine2: "",
+            memberCountLabel: "",
+            logoUrl: "",
+            members: [],
+            ctaLabel: "",
+            ctaHref: ""
           }
         : undefined
-    };
-  } catch {
-    return fallback;
+    } as unknown as ProfileViewData;
+  } catch (err) {
+    return null as unknown as ProfileViewData | null;
   }
 }
 
 export async function ProfilePage({ username }: ProfilePageProps) {
-  const profile = (await loadProfile(username)) as ProfileViewData;
+  const profile = (await loadProfile(username)) as ProfileViewData | null;
+
+  if (!profile) {
+    return (
+      <AppShell leftAside={null} rightAside={null}>
+        <div className="rounded-2xl border border-of-border bg-of-surface/90 p-8 text-center">
+          <h2 className="text-xl font-semibold text-of-text">Não foi possível carregar os dados do perfil</h2>
+          <p className="mt-2 text-sm text-of-muted">Tente atualizar a página ou volte mais tarde.</p>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell
