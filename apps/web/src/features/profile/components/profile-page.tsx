@@ -1,14 +1,13 @@
 import type { UserPost, UserProfile } from "@onlyfrangos/types";
 
 import { AppShell } from "../../../components/layout/app-shell";
+import { resolveAvatarUrl } from "../../../lib/avatar";
 import { sdk } from "../../../lib/sdk";
 
-// Removed local fallback mocks - rely only on API data
-import type { ProfileSummaryItem, ProfileViewData } from "../types";
+import type { ProfileViewData } from "../types";
 
 import { ProfileFitnessDashboard } from "./profile-fitness-dashboard";
 import { ProfileHeader } from "./profile-header";
-import { ProfileMainFitnessSummary } from "./profile-main-fitness-summary";
 import { ProfilePostGrid } from "./profile-post-grid";
 import { ProfileSidebar } from "./profile-sidebar";
 import { ProfileTabs } from "./profile-tabs";
@@ -18,7 +17,7 @@ type ProfilePageProps = {
   username: string;
 };
 
-async function loadProfile(username: string) {
+async function loadProfile(username: string): Promise<ProfileViewData | null> {
   try {
     const [profile, posts] = await Promise.all([sdk.getUserByUsername(username), sdk.getUserPosts(username)]);
 
@@ -27,17 +26,15 @@ async function loadProfile(username: string) {
       username: profile.username,
       name: profile.name,
       bio: profile.bio,
-      joinedLabel: undefined,
-      avatarUrl: profile.avatarUrl,
+      joinedLabel: formatJoinedLabel(profile.createdAt),
+      avatarUrl: resolveAvatarUrl(profile.avatarUrl, profile.username),
       gymLabel: profile.profile.gym ?? undefined,
       goalWeightLabel: profile.profile.fitnessGoal ?? undefined,
       postsCount: formatCompactCount(profile.postCount),
       followersCount: formatCompactCount(profile.followersCount),
       followingCount: formatCompactCount(profile.followingCount),
       actionMode: username === "extrastickersbr" ? "self" : "visitor",
-      fitnessSummary: buildSummary(profile, []),
-      posts: buildPosts(posts, profile, { posts: [] } as any),
-      workoutFrequency: undefined,
+      posts: buildPosts(posts, profile),
       tabs: [
         { id: "posts", label: "Publicacoes" }
       ],
@@ -48,19 +45,17 @@ async function loadProfile(username: string) {
             addressLine2: "",
             memberCountLabel: "",
             logoUrl: "",
-            members: [],
-            ctaLabel: "",
-            ctaHref: ""
+            members: []
           }
         : undefined
-    } as unknown as ProfileViewData;
-  } catch (err) {
-    return null as unknown as ProfileViewData | null;
+    };
+  } catch {
+    return null;
   }
 }
 
 export async function ProfilePage({ username }: ProfilePageProps) {
-  const profile = (await loadProfile(username)) as ProfileViewData | null;
+  const profile = await loadProfile(username);
 
   if (!profile) {
     return (
@@ -80,7 +75,6 @@ export async function ProfilePage({ username }: ProfilePageProps) {
       rightAside={
         <div className="sticky top-6">
           <ProfileFitnessDashboard
-            summary={profile.fitnessSummary}
             workoutFrequency={profile.workoutFrequency}
             gymCard={profile.gymCard}
           />
@@ -108,11 +102,10 @@ export async function ProfilePage({ username }: ProfilePageProps) {
         followingCount={profile.followingCount}
         actionMode={profile.actionMode}
       />
-      <ProfileMainFitnessSummary items={profile.fitnessSummary} />
       <ProfileTabs items={profile.tabs} activeTab="posts" />
 
       <section className="mt-4 lg:hidden">
-        <ProfileFitnessDashboard summary={profile.fitnessSummary} workoutFrequency={profile.workoutFrequency} gymCard={profile.gymCard} />
+        <ProfileFitnessDashboard workoutFrequency={profile.workoutFrequency} gymCard={profile.gymCard} />
       </section>
 
       <ProfilePostGrid posts={profile.posts} username={profile.username} avatarUrl={profile.avatarUrl} />
@@ -127,41 +120,26 @@ function formatCompactCount(value: number): string {
   }).format(value);
 }
 
-function buildSummary(profile: UserProfile, fallbackItems: ProfileSummaryItem[]): ProfileSummaryItem[] {
-  const weightValue = profile.profile.physicalInfo?.weight ?? fallbackItems.find((item) => item.id === "weight")?.value ?? "--";
-  const heightValue = fallbackItems.find((item) => item.id === "height")?.value ?? "--";
-  const goalValue = normalizeGoalWeight(profile.profile.fitnessGoal) ?? fallbackItems.find((item) => item.id === "goal")?.value ?? "--";
-
-  return [
-    { id: "weight", label: "Peso atual", value: weightValue },
-    { id: "height", label: "Altura", value: heightValue },
-    { id: "goal", label: "Meta de peso", value: goalValue }
-  ];
-}
-
-function normalizeGoalWeight(goal?: string): string | null {
-  if (!goal) {
-    return null;
-  }
-
-  const cleaned = goal.split("•")[0]?.trim();
-  return cleaned || null;
-}
-
-function buildPosts(posts: UserPost[], profile: UserProfile, fallback: ProfileViewData) {
-  if (posts.length === 0) {
-    return fallback.posts;
-  }
-
-  return posts.map((post, index) => ({
+function buildPosts(posts: UserPost[], profile: UserProfile) {
+  return posts.map((post) => ({
     id: post.id,
     caption: post.caption,
     imageUrl: post.imageUrl,
     createdAtLabel: formatDateLabel(post.createdAt),
-    likeCount: Math.max(22, 150 - index * 7),
-    commentCount: Math.max(4, 30 - index * 2),
+    likeCount: post.likeCount,
+    commentCount: post.commentCount,
     hashtags: [profile.username]
   }));
+}
+
+function formatJoinedLabel(value: string): string | undefined {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return undefined;
+  }
+
+  const joinedAt = date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  return `Entrou em ${joinedAt}`;
 }
 
 function formatDateLabel(value: string): string {

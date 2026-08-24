@@ -4,18 +4,14 @@ import { Bookmark, Heart, MessageCircle } from "lucide-react";
 import type { FeedPost } from "@onlyfrangos/types";
 import Link from "next/link";
 
+import { resolveAvatarUrl } from "../../../lib/avatar";
+
 type PostCardProps = {
   post: FeedPost;
 };
 
-const localAvatars: Record<string, string> = {
-  extrastickersbr: "/avatars/extrastickersbr.jpg",
-  "maromba.raiz": "/avatars/maromba-raiz.jpg",
-  fabiocut: "/avatars/fabiocut.jpg"
-};
-
 export function PostCard({ post }: PostCardProps) {
-  const avatarUrl = localAvatars[post.author.username] ?? "/avatars/extrastickersbr.jpg";
+  const avatarUrl = resolveAvatarUrl(post.author.avatarUrl, post.author.username);
   const createdAtLabel = new Date(post.createdAt).toLocaleString("pt-BR", {
     dateStyle: "short",
     timeStyle: "short"

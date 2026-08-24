@@ -27,8 +27,8 @@ export type GymCardData = {
   memberCountLabel?: string;
   logoUrl?: string;
   members: GymPreviewMember[];
-  ctaLabel: string;
-  ctaHref: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 };
 
 export type ProfilePostItem = {
@@ -64,7 +64,6 @@ export type ProfileViewData = {
   actionMode: ProfileActionMode;
   posts: ProfilePostItem[];
   tabs: ProfileTabsItem[];
-  fitnessSummary: ProfileSummaryItem[];
-  workoutFrequency: WorkoutFrequency;
+  workoutFrequency?: WorkoutFrequency;
   gymCard?: GymCardData;
 };

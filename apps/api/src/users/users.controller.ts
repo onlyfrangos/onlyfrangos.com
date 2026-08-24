@@ -20,13 +20,11 @@ export class UsersController {
     return this.usersService.getSuggestions(limit ? Number(limit) : 5);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(":username")
   getByUsername(@Param("username") username: string) {
     return this.usersService.getByUsername(username);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(":username/posts")
   getPostsByUsername(@Param("username") username: string) {
     return this.usersService.getPostsByUsername(username);

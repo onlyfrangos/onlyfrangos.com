@@ -42,12 +42,14 @@ export function GymCard({ gym }: GymCardProps) {
         </div>
       ) : null}
 
-      <Link
-        href={gym.ctaHref}
-        className="mt-4 inline-flex w-full justify-center rounded-xl border border-of-border px-3 py-2 text-sm text-of-text hover:bg-white/10"
-      >
-        {gym.ctaLabel}
-      </Link>
+      {gym.ctaHref && gym.ctaLabel ? (
+        <Link
+          href={gym.ctaHref}
+          className="mt-4 inline-flex w-full justify-center rounded-xl border border-of-border px-3 py-2 text-sm text-of-text hover:bg-white/10"
+        >
+          {gym.ctaLabel}
+        </Link>
+      ) : null}
     </section>
   );
 }

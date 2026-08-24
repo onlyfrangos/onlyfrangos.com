@@ -20,6 +20,8 @@ export type UserPost = {
   caption: string;
   imageUrl: string;
   createdAt: string;
+  likeCount: number;
+  commentCount: number;
 };
 
 export type UserSuggestion = {
@@ -43,6 +45,7 @@ export type UserProfile = {
   name: string;
   bio: string;
   avatarUrl: string;
+  createdAt: string;
   postCount: number;
   followersCount: number;
   followingCount: number;

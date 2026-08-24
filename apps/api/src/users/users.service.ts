@@ -57,6 +57,7 @@ export class UsersService {
       name: profile?.name ?? user.username,
       bio: profile?.bio ?? "",
       avatarUrl: profile?.avatarUrl ?? "",
+      createdAt: user.createdAt.toISOString(),
       postCount: user._count.posts,
       followersCount,
       followingCount,
@@ -111,6 +112,7 @@ export class UsersService {
       name: profile?.name ?? user.username,
       bio: profile?.bio ?? "",
       avatarUrl: profile?.avatarUrl ?? "",
+      createdAt: user.createdAt.toISOString(),
       postCount: user._count.posts,
       followersCount,
       followingCount,
@@ -144,6 +146,12 @@ export class UsersService {
         media: {
           orderBy: { order: "asc" },
           take: 1
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true
+          }
         }
       }
     });
@@ -152,7 +160,9 @@ export class UsersService {
       id: post.id,
       caption: post.caption,
       imageUrl: post.media[0]?.mediaUrl ?? "",
-      createdAt: post.createdAt.toISOString()
+      createdAt: post.createdAt.toISOString(),
+      likeCount: post._count.likes,
+      commentCount: post._count.comments
     }));
   }
 }
