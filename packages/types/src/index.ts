@@ -22,6 +22,13 @@ export type UserPost = {
   createdAt: string;
 };
 
+export type UserSuggestion = {
+  id: string;
+  username: string;
+  name: string;
+  avatarUrl: string;
+};
+
 export type CursorPage<T> = {
   items: T[];
   pageInfo: {

@@ -6,6 +6,22 @@ import { PrismaService } from "../shared/prisma.service";
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getSuggestions(limit = 5) {
+    const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.trunc(limit), 1), 20) : 5;
+    const users = await this.prisma.user.findMany({
+      take: safeLimit,
+      orderBy: { createdAt: "desc" },
+      include: { profile: true }
+    });
+
+    return users.map((user) => ({
+      id: user.id,
+      username: user.username,
+      name: user.profile?.name ?? user.username,
+      avatarUrl: user.profile?.avatarUrl ?? ""
+    }));
+  }
+
   async getById(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },

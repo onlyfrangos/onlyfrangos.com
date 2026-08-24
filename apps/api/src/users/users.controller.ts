@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Query, Req, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -13,6 +13,11 @@ export class UsersController {
   @Get("me")
   getMe(@Req() request: { user: { sub: string } }) {
     return this.usersService.getById(request.user.sub);
+  }
+
+  @Get("suggestions")
+  getSuggestions(@Query("limit") limit?: string) {
+    return this.usersService.getSuggestions(limit ? Number(limit) : 5);
   }
 
   @UseGuards(JwtAuthGuard)

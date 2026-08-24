@@ -1,4 +1,4 @@
-import type { CursorPage, FeedPost, UserPost, UserProfile } from "@onlyfrangos/types";
+import type { CursorPage, FeedPost, UserPost, UserProfile, UserSuggestion } from "@onlyfrangos/types";
 
 type SdkConfig = {
   baseUrl: string;
@@ -32,6 +32,10 @@ export function createOnlyFrangosSdk(config: SdkConfig) {
     },
     getUserByUsername(username: string) {
       return request<UserProfile>(`/users/${username}`);
+    },
+    getUserSuggestions(limit = 5) {
+      const query = new URLSearchParams({ limit: String(limit) });
+      return request<UserSuggestion[]>(`/users/suggestions?${query.toString()}`);
     },
     getUserPosts(username: string) {
       return request<UserPost[]>(`/users/${username}/posts`);

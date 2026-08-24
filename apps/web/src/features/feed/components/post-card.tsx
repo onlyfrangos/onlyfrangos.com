@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Bookmark, Heart, MessageCircle } from "lucide-react";
 
 import type { FeedPost } from "@onlyfrangos/types";
+import Link from "next/link";
 
 type PostCardProps = {
   post: FeedPost;
@@ -24,11 +25,18 @@ export function PostCard({ post }: PostCardProps) {
     <article className="overflow-hidden rounded-xl border border-of-border bg-of-surface/90">
       <header className="flex items-center justify-between border-b border-of-border px-3 py-2.5">
         <div className="flex items-center gap-2.5">
-          <div className="relative h-8 w-8 overflow-hidden rounded-full border border-of-border">
+          <Link
+            href={`/${post.author.username}`}
+            className="relative h-8 w-8 overflow-hidden rounded-full border border-of-border"
+          >
             <Image src={avatarUrl} alt={`Avatar de @${post.author.username}`} fill className="object-cover" sizes="32px" />
-          </div>
+          </Link>
           <div>
-            <p className="text-sm font-medium text-of-text">@{post.author.username}</p>
+            <Link
+              href={`/${post.author.username}`}
+            >
+              <p className="text-sm font-medium text-of-text">@{post.author.username}</p>
+            </Link>
             <p className="text-xs text-of-muted">{createdAtLabel}</p>
           </div>
         </div>

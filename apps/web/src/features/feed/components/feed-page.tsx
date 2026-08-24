@@ -1,7 +1,6 @@
-import type { FeedPost } from "@onlyfrangos/types";
+import type { FeedPost, UserSuggestion } from "@onlyfrangos/types";
 
 import { AppShell } from "../../../components/layout/app-shell";
-// removed local mock data - rely only on API
 import { sdk } from "../../../lib/sdk";
 import { ProfileSidebar } from "../../profile/components/profile-sidebar";
 import { ProfileTopBar } from "../../profile/components/profile-top-bar";
@@ -19,8 +18,16 @@ async function loadFeed(): Promise<FeedPost[] | null> {
   }
 }
 
+async function loadSuggestions(): Promise<UserSuggestion[]> {
+  try {
+    return await sdk.getUserSuggestions(5);
+  } catch {
+    return [];
+  }
+}
+
 export async function FeedPage() {
-  const posts = await loadFeed();
+  const [posts, suggestions] = await Promise.all([loadFeed(), loadSuggestions()]);
   if (!posts) {
     return (
       <AppShell leftAside={null} rightAside={null}>
@@ -37,7 +44,7 @@ export async function FeedPage() {
     <AppShell
       leftAside={<ProfileSidebar username={viewerUsername} />}
       rightAsideClassName="border-none bg-transparent p-0"
-      rightAside={<FeedRightAside suggestions={undefined} />}
+      rightAside={<FeedRightAside suggestions={suggestions} />}
       mobileNavItems={[
         { href: "/feed", label: "Inicio" },
         { href: `/${viewerUsername}`, label: "Perfil" },
