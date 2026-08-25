@@ -56,6 +56,8 @@ export type ProfileViewData = {
   avatarUrl: string;
   verified?: boolean;
   gymLabel?: string;
+  gymHref?: string;
+  cityLabel?: string;
   naturalLabel?: string;
   goalWeightLabel?: string;
   postsCount: string;
@@ -66,4 +68,5 @@ export type ProfileViewData = {
   tabs: ProfileTabsItem[];
   workoutFrequency?: WorkoutFrequency;
   gymCard?: GymCardData;
+  physicalSummary?: ProfileSummaryItem[];
 };

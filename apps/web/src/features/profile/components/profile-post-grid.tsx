@@ -14,7 +14,7 @@ export function ProfilePostGrid({ posts, username, avatarUrl }: ProfilePostGridP
   return (
     <section className="mt-4 rounded-2xl border border-of-border bg-of-surface/85 p-3 sm:p-4">
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-of-text">Todas as publicacoes</h2>
+        <h2 className="text-lg font-semibold text-of-text">Todas as Publicações</h2>
         <div className="inline-flex items-center gap-2">
           <button type="button" className="inline-flex items-center gap-1.5 rounded-lg border border-of-border px-3 py-1.5 text-sm text-of-muted hover:text-of-text">
             Mais recentes

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { checkUsernameAvailability, loginUser, registerUser } from "../../../lib/auth";
+import { LocationSelects } from "../../locations/location-selects";
 
 type AuthFormProps = { mode: "login" | "register" };
 type UsernameStatus = "idle" | "checking" | "available" | "unavailable" | "error";
@@ -19,6 +20,8 @@ export function AuthForm({ mode }: AuthFormProps) {
     username: "",
     email: "",
     age: "",
+    stateId: "",
+    cityId: "",
     password: ""
   });
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
@@ -62,6 +65,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           username: form.username,
           email: form.email,
           age: Number(form.age),
+          cityId: Number(form.cityId),
           password: form.password
         });
       } else {
@@ -176,6 +180,15 @@ export function AuthForm({ mode }: AuthFormProps) {
                   required
                 />
               </Field>
+              <LocationSelects
+                stateId={form.stateId}
+                cityId={form.cityId}
+                onStateChange={(stateId) =>
+                  setForm((current) => ({ ...current, stateId, cityId: "" }))
+                }
+                onCityChange={(cityId) => setForm((current) => ({ ...current, cityId }))}
+                className={inputClassName}
+              />
             </div>
           ) : null}
 

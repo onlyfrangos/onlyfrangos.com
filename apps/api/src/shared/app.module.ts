@@ -7,6 +7,7 @@ import { FeedModule } from "../feed/feed.module";
 import { FollowsModule } from "../follows/follows.module";
 import { GymsModule } from "../gyms/gyms.module";
 import { LikesModule } from "../likes/likes.module";
+import { LocationsModule } from "../locations/locations.module";
 import { PostsModule } from "../posts/posts.module";
 import { UsersModule } from "../users/users.module";
 import { PrismaModule } from "./prisma.module";
@@ -25,7 +26,8 @@ import { PrismaModule } from "./prisma.module";
     FollowsModule,
     LikesModule,
     CommentsModule,
-    GymsModule
+    GymsModule,
+    LocationsModule
   ]
 })
 export class AppModule {}

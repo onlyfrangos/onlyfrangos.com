@@ -50,14 +50,15 @@ export type UserProfile = {
   followersCount: number;
   followingCount: number;
   profile: {
+    gymId?: string | null;
     gym: string | null;
-    location: string | null;
-    locationUrl: string | null;
-    fitnessGoal?: string;
+    gymImageUrl?: string | null;
+    city: string | null;
+    fitnessGoal?: string | null;
     physicalInfo: {
-      weight?: string;
-      bodyFat?: string;
-      arm?: string;
+      weight?: string | null;
+      bodyFat?: string | null;
+      arm?: string | null;
     } | null;
   };
 };

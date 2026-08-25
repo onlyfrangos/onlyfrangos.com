@@ -11,3 +11,4 @@ coverage
 .DS_Store
 prisma/dev.db
 todo.md
+apps/api/uploads/

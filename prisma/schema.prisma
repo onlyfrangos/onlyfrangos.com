@@ -12,6 +12,7 @@ model User {
   email        String   @unique
   username     String   @unique
   passwordHash String
+  isAdmin      Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -32,19 +33,22 @@ model Profile {
   avatarUrl        String?
   gymId            String?  @db.Uuid
   fitnessGoal      String?
-  location         String?
+  cityId           Int?     @map("city_id")
   locationUrl      String?
   weight           String?
   bodyFat          String?
   arm              String?
   showGym          Boolean  @default(true)
-  showLocation     Boolean  @default(true)
+  showCity         Boolean  @default(true)
   showPhysicalInfo Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gym  Gym? @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gym  Gym?  @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  city City? @relation(fields: [cityId], references: [codigoIbge], onDelete: SetNull)
+
+  @@index([cityId])
 }
 
 model Post {
@@ -116,11 +120,43 @@ model Comment {
 model Gym {
   id        String   @id @db.Uuid
   name      String
-  city      String
-  state     String
+  cityId    Int      @map("city_id")
+  imageUrl  String?  @map("image_url")
   createdAt DateTime @default(now())
 
   profiles Profile[]
+  city     City      @relation(fields: [cityId], references: [codigoIbge], onDelete: Restrict)
+
+  @@index([cityId])
+}
+
+model State {
+  codigoUf  Int    @id @map("codigo_uf")
+  uf        String @db.VarChar(2)
+  nome      String @db.VarChar(100)
+  latitude  Float  @db.Real
+  longitude Float  @db.Real
+  regiao    String @db.VarChar(12)
+
+  cities City[]
+}
+
+model City {
+  codigoIbge  Int     @id @map("codigo_ibge")
+  nome        String  @db.VarChar(100)
+  latitude    Float   @db.Real
+  longitude   Float   @db.Real
+  capital     Boolean
+  codigoUf    Int     @map("codigo_uf")
+  siafiId     String  @unique @map("siafi_id") @db.VarChar(4)
+  ddd         Int
+  fusoHorario String  @map("fuso_horario") @db.VarChar(32)
+
+  state    State     @relation(fields: [codigoUf], references: [codigoUf], onDelete: NoAction, onUpdate: NoAction)
+  gyms     Gym[]
+  profiles Profile[]
+
+  @@index([codigoUf])
 }
 
 enum MediaType {

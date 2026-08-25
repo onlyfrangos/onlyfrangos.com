@@ -32,8 +32,20 @@ async function main() {
 
   await prisma.gym.createMany({
     data: [
-      { id: ids.gyms.gymx, name: "Academia X", city: "Mossoro", state: "RN" },
-      { id: ids.gyms.iron, name: "Iron Factory", city: "Natal", state: "RN" }
+      {
+        id: ids.gyms.gymx,
+        name: "Academia X",
+        cityId: 2408003,
+        imageUrl:
+          "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        id: ids.gyms.iron,
+        name: "Iron Factory",
+        cityId: 2408102,
+        imageUrl:
+          "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1200&q=80"
+      }
     ]
   });
 
@@ -43,7 +55,8 @@ async function main() {
         id: ids.users.extra,
         email: "extra@onlyfrangos.dev",
         username: "extrastickersbr",
-        passwordHash: seedPasswordHash
+        passwordHash: seedPasswordHash,
+        isAdmin: true
       },
       {
         id: ids.users.fabio,
@@ -70,13 +83,13 @@ async function main() {
         avatarUrl: "/avatars/extrastickersbr.jpg",
         gymId: ids.gyms.gymx,
         fitnessGoal: "72 kg -> 80 kg",
-        location: "Mossoro, RN",
+        cityId: 2408003,
         locationUrl: "https://maps.google.com",
         weight: "72 kg",
         bodyFat: "18%",
         arm: "36 cm",
         showGym: true,
-        showLocation: true,
+        showCity: true,
         showPhysicalInfo: true
       },
       {
@@ -88,7 +101,7 @@ async function main() {
         gymId: ids.gyms.iron,
         fitnessGoal: "70 kg -> 80 kg",
         showGym: false,
-        showLocation: false,
+        showCity: false,
         showPhysicalInfo: false
       },
       {
@@ -97,7 +110,7 @@ async function main() {
         name: "Coach Frango",
         bio: "Consistencia acima de tudo.",
         showGym: true,
-        showLocation: false,
+        showCity: false,
         showPhysicalInfo: true
       }
     ]

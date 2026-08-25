@@ -1,4 +1,4 @@
-import { IsEmail, IsInt, IsString, Matches, Max, Min, MinLength } from "class-validator";
+import { IsEmail, IsInt, IsString, Matches, Max, MaxLength, Min, MinLength } from "class-validator";
 
 export class RegisterDto {
   @IsString()
@@ -23,4 +23,8 @@ export class RegisterDto {
   @Min(13)
   @Max(120)
   age!: number;
+
+  @IsInt()
+  @Min(1)
+  cityId!: number;
 }

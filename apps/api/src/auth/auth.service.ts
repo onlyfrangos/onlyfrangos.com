@@ -4,6 +4,7 @@ import * as bcrypt from "bcrypt";
 import { randomUUID } from "node:crypto";
 
 import { PrismaService } from "../shared/prisma.service";
+import { isReservedUsername, USERNAME_UNAVAILABLE_MESSAGE } from "./username-policy";
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
   async isUsernameAvailable(username: string) {
     const normalizedUsername = username.trim().toLowerCase();
 
-    if (!/^[a-z0-9._]{3,}$/.test(normalizedUsername)) {
+    if (!/^[a-z0-9._]{3,}$/.test(normalizedUsername) || isReservedUsername(username)) {
       return { username: normalizedUsername, available: false };
     }
 
@@ -44,10 +45,15 @@ export class AuthService {
     password: string;
     fullName: string;
     age: number;
+    cityId: number;
   }) {
     const normalizedUsername = body.username.trim().toLowerCase();
     const normalizedEmail = body.email.trim().toLowerCase();
     const normalizedFullName = body.fullName.trim();
+
+    if (isReservedUsername(body.username)) {
+      throw new ConflictException(USERNAME_UNAVAILABLE_MESSAGE);
+    }
 
     const existingUser = await this.prisma.user.findFirst({
       where: {
@@ -72,9 +78,10 @@ export class AuthService {
             id: randomUUID(),
             name: normalizedFullName,
             age: body.age,
+            cityId: body.cityId,
             bio: "",
             showGym: true,
-            showLocation: true,
+            showCity: true,
             showPhysicalInfo: true
           }
         }
@@ -82,7 +89,8 @@ export class AuthService {
       select: {
         id: true,
         email: true,
-        username: true
+        username: true,
+        isAdmin: true
       }
     });
 
@@ -102,7 +110,8 @@ export class AuthService {
         id: true,
         email: true,
         username: true,
-        passwordHash: true
+        passwordHash: true,
+        isAdmin: true
       }
     });
 
@@ -135,7 +144,7 @@ export class AuthService {
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        select: { id: true, email: true, username: true }
+        select: { id: true, email: true, username: true, isAdmin: true }
       });
 
       if (!user) {

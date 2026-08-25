@@ -19,7 +19,10 @@ type ProfilePageProps = {
 
 async function loadProfile(username: string): Promise<ProfileViewData | null> {
   try {
-    const [profile, posts] = await Promise.all([sdk.getUserByUsername(username), sdk.getUserPosts(username)]);
+    const [profile, posts] = await Promise.all([
+      sdk.getUserByUsername(username),
+      sdk.getUserPosts(username)
+    ]);
 
     return {
       id: profile.id,
@@ -29,23 +32,43 @@ async function loadProfile(username: string): Promise<ProfileViewData | null> {
       joinedLabel: formatJoinedLabel(profile.createdAt),
       avatarUrl: resolveAvatarUrl(profile.avatarUrl, profile.username),
       gymLabel: profile.profile.gym ?? undefined,
+      gymHref: profile.profile.gymId ? `/gyms/${profile.profile.gymId}` : undefined,
+      cityLabel: profile.profile.city ?? undefined,
       goalWeightLabel: profile.profile.fitnessGoal ?? undefined,
       postsCount: formatCompactCount(profile.postCount),
       followersCount: formatCompactCount(profile.followersCount),
       followingCount: formatCompactCount(profile.followingCount),
-      actionMode: username === "extrastickersbr" ? "self" : "visitor",
+      actionMode: "visitor",
       posts: buildPosts(posts, profile),
-      tabs: [
-        { id: "posts", label: "Publicacoes" }
-      ],
+      tabs: [{ id: "posts", label: "Publicacoes" }],
+      physicalSummary: [
+        profile.profile.fitnessGoal
+          ? { id: "goal", label: "Objetivo", value: profile.profile.fitnessGoal }
+          : null,
+        profile.profile.physicalInfo?.weight
+          ? { id: "weight", label: "Peso", value: profile.profile.physicalInfo.weight }
+          : null,
+        profile.profile.physicalInfo?.bodyFat
+          ? {
+              id: "bodyFat",
+              label: "Gordura corporal",
+              value: profile.profile.physicalInfo.bodyFat
+            }
+          : null,
+        profile.profile.physicalInfo?.arm
+          ? { id: "arm", label: "Braço", value: profile.profile.physicalInfo.arm }
+          : null
+      ].filter((item): item is { id: string; label: string; value: string } => Boolean(item)),
       gymCard: profile.profile.gym
         ? {
             name: profile.profile.gym,
-            addressLine1: profile.profile.location ?? "",
+            addressLine1: profile.profile.city ?? "",
             addressLine2: "",
             memberCountLabel: "",
-            logoUrl: "",
-            members: []
+            logoUrl: profile.profile.gymImageUrl ?? "",
+            members: [],
+            ctaLabel: "Ver academia",
+            ctaHref: profile.profile.gymId ? `/gyms/${profile.profile.gymId}` : undefined
           }
         : undefined
     };
@@ -61,8 +84,12 @@ export async function ProfilePage({ username }: ProfilePageProps) {
     return (
       <AppShell leftAside={null} rightAside={null}>
         <div className="rounded-2xl border border-of-border bg-of-surface/90 p-8 text-center">
-          <h2 className="text-xl font-semibold text-of-text">Não foi possível carregar os dados do perfil</h2>
-          <p className="mt-2 text-sm text-of-muted">Tente atualizar a página ou volte mais tarde.</p>
+          <h2 className="text-xl font-semibold text-of-text">
+            Não foi possível carregar os dados do perfil
+          </h2>
+          <p className="mt-2 text-sm text-of-muted">
+            Tente atualizar a página ou volte mais tarde.
+          </p>
         </div>
       </AppShell>
     );
@@ -78,12 +105,13 @@ export async function ProfilePage({ username }: ProfilePageProps) {
           <ProfileFitnessDashboard
             workoutFrequency={profile.workoutFrequency}
             gymCard={profile.gymCard}
+            summaryItems={profile.physicalSummary}
           />
         </div>
       }
       mobileNavItems={[
         { href: "/feed", label: "Inicio" },
-        { href: `/${profile.username}`, label: "Perfil" },
+        { href: "/profile", label: "Perfil" },
         { href: "#", label: "Explorar" },
         { href: "#", label: "Alertas" }
       ]}
@@ -97,6 +125,8 @@ export async function ProfilePage({ username }: ProfilePageProps) {
         avatarUrl={profile.avatarUrl}
         verified={profile.verified}
         gymLabel={profile.gymLabel}
+        gymHref={profile.gymHref}
+        cityLabel={profile.cityLabel}
         naturalLabel={profile.naturalLabel}
         postsCount={profile.postsCount}
         followersCount={profile.followersCount}
@@ -106,10 +136,18 @@ export async function ProfilePage({ username }: ProfilePageProps) {
       <ProfileTabs items={profile.tabs} activeTab="posts" />
 
       <section className="mt-4 lg:hidden">
-        <ProfileFitnessDashboard workoutFrequency={profile.workoutFrequency} gymCard={profile.gymCard} />
+        <ProfileFitnessDashboard
+          workoutFrequency={profile.workoutFrequency}
+          gymCard={profile.gymCard}
+          summaryItems={profile.physicalSummary}
+        />
       </section>
 
-      <ProfilePostGrid posts={profile.posts} username={profile.username} avatarUrl={profile.avatarUrl} />
+      <ProfilePostGrid
+        posts={profile.posts}
+        username={profile.username}
+        avatarUrl={profile.avatarUrl}
+      />
     </AppShell>
   );
 }

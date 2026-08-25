@@ -48,7 +48,7 @@ export async function FeedPage() {
       mobileNavigation={<ProfileMobileNavigation username={viewerUsername} />}
       mobileNavItems={[
         { href: "/feed", label: "Inicio" },
-        { href: `/${viewerUsername}`, label: "Perfil" },
+        { href: "/profile", label: "Perfil" },
         { href: "#", label: "Explorar" },
         { href: "#", label: "Alertas" }
       ]}

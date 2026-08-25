@@ -2,6 +2,7 @@ export type AuthUser = {
   id: string;
   email: string;
   username: string;
+  isAdmin: boolean;
 };
 
 export type AuthSession = {
@@ -22,6 +23,12 @@ export function getAuthSession(): AuthSession | null {
 
 export function clearAuthSession() {
   inMemorySession = null;
+}
+
+export function updateAuthUser(user: AuthUser) {
+  if (inMemorySession) {
+    inMemorySession = { ...inMemorySession, user };
+  }
 }
 
 export async function logoutUser() {
@@ -71,6 +78,7 @@ export async function registerUser(payload: {
   password: string;
   fullName: string;
   age: number;
+  cityId: number;
 }) {
   const response = await fetch(`${baseUrl}/auth/register`, {
     method: "POST",
