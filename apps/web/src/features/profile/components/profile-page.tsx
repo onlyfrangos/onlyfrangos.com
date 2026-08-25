@@ -37,6 +37,7 @@ async function loadProfile(username: string): Promise<ProfileViewData | null> {
       goalWeightLabel: profile.profile.fitnessGoal ?? undefined,
       postsCount: formatCompactCount(profile.postCount),
       followersCount: formatCompactCount(profile.followersCount),
+      followersCountValue: profile.followersCount,
       followingCount: formatCompactCount(profile.followingCount),
       actionMode: 'visitor',
       posts: buildPosts(posts, profile),
@@ -131,6 +132,8 @@ export async function ProfilePage({ username }: ProfilePageProps) {
         postsCount={profile.postsCount}
         followersCount={profile.followersCount}
         followingCount={profile.followingCount}
+        targetUserId={profile.id}
+        followersCountValue={profile.followersCountValue}
         actionMode={profile.actionMode}
       />
       <ProfileTabs items={profile.tabs} activeTab="posts" />

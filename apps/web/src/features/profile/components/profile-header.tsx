@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Check, CheckCheck, Dumbbell, MapPin, Sprout, Edit2, Share2 } from 'lucide-react';
 import { forwardRef, useEffect, useRef, useState } from 'react';
 
-import { getAuthSession } from '../../../lib/auth';
+import { apiFetch, getAuthSession } from '../../../lib/auth';
 
 import type { ProfileActionMode } from '../types';
 
@@ -23,6 +23,8 @@ type ProfileHeaderProps = {
   postsCount: string;
   followersCount: string;
   followingCount: string;
+  targetUserId?: string;
+  followersCountValue?: number;
   actionMode: ProfileActionMode;
   onEditProfile?: () => void;
 };
@@ -41,10 +43,13 @@ export function ProfileHeader({
   postsCount,
   followersCount,
   followingCount,
+  targetUserId,
+  followersCountValue,
   actionMode,
   onEditProfile,
 }: ProfileHeaderProps) {
   const [effectiveActionMode, setEffectiveActionMode] = useState(actionMode);
+  const [currentFollowersCount, setCurrentFollowersCount] = useState(followersCountValue);
 
   useEffect(() => {
     const loggedUsername = getAuthSession()?.user.username;
@@ -52,6 +57,10 @@ export function ProfileHeader({
       actionMode === 'self' || loggedUsername === username ? 'self' : 'visitor',
     );
   }, [actionMode, username]);
+
+  useEffect(() => {
+    setCurrentFollowersCount(followersCountValue);
+  }, [followersCountValue]);
 
   return (
     <section className="rounded-2xl border border-of-border bg-of-surface/90 px-4 py-4 sm:px-6 sm:py-5">
@@ -86,7 +95,14 @@ export function ProfileHeader({
             <p className="mt-2 text-sm text-of-muted">@{username}</p>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-of-text">
               <StatItem value={postsCount} label="publicações" />
-              <StatItem value={followersCount} label="seguidores" />
+              <StatItem
+                value={
+                  currentFollowersCount === undefined
+                    ? followersCount
+                    : formatCompactCount(currentFollowersCount)
+                }
+                label="seguidores"
+              />
               <StatItem value={followingCount} label="seguindo" />
             </div>
             {joinedLabel ? <p className="mt-1 text-sm text-of-muted">{joinedLabel}</p> : null}
@@ -125,6 +141,8 @@ export function ProfileHeader({
         actionMode={effectiveActionMode}
         onEditProfile={onEditProfile}
         username={username}
+        targetUserId={targetUserId}
+        onFollowersCountChange={setCurrentFollowersCount}
       />
     </section>
   );
@@ -148,11 +166,27 @@ type ProfileActionsProps = {
   actionMode: ProfileActionMode;
   onEditProfile?: () => void;
   username: string;
+  targetUserId?: string;
+  onFollowersCountChange: (followersCount: number) => void;
 };
 
-function ProfileActions({ actionMode, onEditProfile, username }: ProfileActionsProps) {
+type FollowStatus = {
+  following: boolean;
+  followersCount: number;
+};
+
+function ProfileActions({
+  actionMode,
+  onEditProfile,
+  username,
+  targetUserId,
+  onFollowersCountChange,
+}: ProfileActionsProps) {
   const [copied, setCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+  const [isLoadingFollow, setIsLoadingFollow] = useState(false);
+  const [followError, setFollowError] = useState<string | null>(null);
   const shareRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -162,6 +196,48 @@ function ProfileActions({ actionMode, onEditProfile, username }: ProfileActionsP
     document.addEventListener('mousedown', closeShareMenu);
     return () => document.removeEventListener('mousedown', closeShareMenu);
   }, []);
+
+  useEffect(() => {
+    const viewerId = getAuthSession()?.user.id;
+    if (actionMode !== 'visitor' || !targetUserId || viewerId === targetUserId) {
+      return;
+    }
+
+    let active = true;
+    setIsLoadingFollow(true);
+    setFollowError(null);
+
+    apiFetch(`/users/${targetUserId}/follow`)
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(await readFollowError(response));
+        }
+
+        const status = (await response.json()) as FollowStatus;
+        if (active) {
+          setIsFollowing(status.following);
+          onFollowersCountChange(status.followersCount);
+        }
+      })
+      .catch((requestError: unknown) => {
+        if (active) {
+          setFollowError(
+            requestError instanceof Error
+              ? requestError.message
+              : 'Não foi possível carregar o status',
+          );
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setIsLoadingFollow(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [actionMode, onFollowersCountChange, targetUserId]);
 
   async function copyProfileLink() {
     try {
@@ -174,28 +250,72 @@ function ProfileActions({ actionMode, onEditProfile, username }: ProfileActionsP
     }
   }
 
+  async function toggleFollow() {
+    if (!targetUserId || isLoadingFollow) {
+      return;
+    }
+
+    const shouldUnfollow = isFollowing === true;
+    setIsLoadingFollow(true);
+    setFollowError(null);
+
+    try {
+      const response = await apiFetch(`/users/${targetUserId}/follow`, {
+        method: shouldUnfollow ? 'DELETE' : 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error(await readFollowError(response));
+      }
+
+      const status = (await response.json()) as FollowStatus;
+      setIsFollowing(status.following);
+      onFollowersCountChange(status.followersCount);
+    } catch (requestError) {
+      setFollowError(
+        requestError instanceof Error ? requestError.message : 'Não foi possível atualizar',
+      );
+    } finally {
+      setIsLoadingFollow(false);
+    }
+  }
+
   if (actionMode === 'visitor') {
     return (
-      <div className="mt-5 flex w-full items-center gap-2 border-t border-of-border pt-4">
-        <button
-          type="button"
-          className="flex-1 rounded-lg bg-of-primary px-3 py-2 text-sm font-semibold text-white hover:bg-of-primaryHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/70"
-        >
-          Seguir
-        </button>
-        <button
-          type="button"
-          className="flex-1 rounded-lg border border-of-border px-3 py-2 text-sm text-of-text hover:bg-white/10"
-        >
-          Mensagem
-        </button>
-        <ShareMenu
-          ref={shareRef}
-          copied={copied}
-          open={shareOpen}
-          onToggle={() => setShareOpen((value) => !value)}
-          onCopy={copyProfileLink}
-        />
+      <div className="mt-5 border-t border-of-border pt-4">
+        <div className="flex w-full items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleFollow}
+            disabled={isLoadingFollow || !targetUserId}
+            aria-pressed={isFollowing === true}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/70 disabled:cursor-wait disabled:opacity-60 ${
+              isFollowing
+                ? 'border border-of-border text-of-text hover:bg-white/10'
+                : 'bg-of-primary text-white hover:bg-of-primaryHover'
+            }`}
+          >
+            {isLoadingFollow ? 'Aguarde...' : isFollowing ? 'Seguindo' : 'Seguir'}
+          </button>
+          <button
+            type="button"
+            className="flex-1 rounded-lg border border-of-border px-3 py-2 text-sm text-of-text hover:bg-white/10"
+          >
+            Mensagem
+          </button>
+          <ShareMenu
+            ref={shareRef}
+            copied={copied}
+            open={shareOpen}
+            onToggle={() => setShareOpen((value) => !value)}
+            onCopy={copyProfileLink}
+          />
+        </div>
+        {followError ? (
+          <p className="mt-2 text-sm text-red-400" role="alert">
+            {followError}
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -232,6 +352,21 @@ function ProfileActions({ actionMode, onEditProfile, username }: ProfileActionsP
       />
     </div>
   );
+}
+
+async function readFollowError(response: Response): Promise<string> {
+  const payload = (await response.json().catch(() => null)) as {
+    message?: string | string[];
+  } | null;
+  const message = Array.isArray(payload?.message) ? payload.message[0] : payload?.message;
+  return message ?? 'Não foi possível atualizar o perfil';
+}
+
+function formatCompactCount(value: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 
 const ShareMenu = forwardRef<

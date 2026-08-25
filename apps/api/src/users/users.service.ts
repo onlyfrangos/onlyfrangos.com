@@ -145,9 +145,15 @@ export class UsersService {
     return { success: true };
   }
 
-  async getSuggestions(limit = 5) {
+  async getSuggestions(limit = 5, viewerId?: string) {
     const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.trunc(limit), 1), 20) : 5;
     const users = await this.prisma.user.findMany({
+      where: viewerId
+        ? {
+            id: { not: viewerId },
+            followers: { none: { followerId: viewerId } },
+          }
+        : undefined,
       take: safeLimit,
       orderBy: { createdAt: 'desc' },
       include: { profile: true },

@@ -71,6 +71,12 @@ export class UsersController {
     return this.usersService.getSuggestions(limit ? Number(limit) : 5);
   }
 
+  @Get('me/suggestions')
+  @UseGuards(JwtAuthGuard)
+  getMySuggestions(@Req() request: { user: { sub: string } }, @Query('limit') limit?: string) {
+    return this.usersService.getSuggestions(limit ? Number(limit) : 5, request.user.sub);
+  }
+
   @Get('admin/list')
   @UseGuards(JwtAuthGuard, AdminGuard)
   adminList(@Query('page') page?: string, @Query('search') search = '') {

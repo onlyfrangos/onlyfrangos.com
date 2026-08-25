@@ -64,6 +64,7 @@ export type ProfileViewData = {
   goalWeightLabel?: string;
   postsCount: string;
   followersCount: string;
+  followersCountValue: number;
   followingCount: string;
   actionMode: ProfileActionMode;
   posts: ProfilePostItem[];
