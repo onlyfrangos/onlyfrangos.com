@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, Save } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowLeft, Save } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import { AppShell } from "../../../components/layout/app-shell";
-import { apiFetch, getAuthSession } from "../../../lib/auth";
-import { LocationSelects } from "../../locations/location-selects";
-import { ProfileMobileNavigation, ProfileSidebar } from "../../profile/components/profile-sidebar";
-import type { Gym } from "../types";
+import { AppShell } from '../../../components/layout/app-shell';
+import { apiFetch, getAuthSession } from '../../../lib/auth';
+import { LocationSelects } from '../../locations/location-selects';
+import { ProfileMobileNavigation, ProfileSidebar } from '../../profile/components/profile-sidebar';
+import type { Gym } from '../types';
 
 const inputClass =
-  "w-full rounded-xl border border-of-border bg-black/20 px-3 py-2.5 text-sm text-of-text outline-none focus:border-of-primary focus:ring-2 focus:ring-of-primary/20";
+  'w-full rounded-xl border border-of-border bg-black/20 px-3 py-2.5 text-sm text-of-text outline-none focus:border-of-primary focus:ring-2 focus:ring-of-primary/20';
 
 export function GymFormPage({ gymId }: { gymId?: string }) {
   const router = useRouter();
   const session = getAuthSession();
-  const [form, setForm] = useState({ name: "", stateId: "", cityId: "", imageUrl: "" });
+  const [form, setForm] = useState({ name: '', stateId: '', cityId: '', imageUrl: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState('');
   const [loading, setLoading] = useState(Boolean(gymId));
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!imageFile) {
-      setPreviewUrl("");
+      setPreviewUrl('');
       return;
     }
     const url = URL.createObjectURL(imageFile);
@@ -37,13 +37,13 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
 
   useEffect(() => {
     if (!session?.user.isAdmin) {
-      router.replace("/gyms");
+      router.replace('/gyms');
       return;
     }
     if (!gymId) return;
     void apiFetch(`/gyms/${gymId}`)
       .then(async (response) => {
-        if (!response.ok) throw new Error("Academia não encontrada");
+        if (!response.ok) throw new Error('Academia não encontrada');
         return response.json() as Promise<Gym>;
       })
       .then((gym) =>
@@ -51,11 +51,11 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
           name: gym.name,
           stateId: String(gym.stateId),
           cityId: String(gym.cityId),
-          imageUrl: gym.imageUrl
-        })
+          imageUrl: gym.imageUrl,
+        }),
       )
       .catch((requestError) =>
-        setError(requestError instanceof Error ? requestError.message : "Erro ao carregar")
+        setError(requestError instanceof Error ? requestError.message : 'Erro ao carregar'),
       )
       .finally(() => setLoading(false));
   }, [gymId, router, session?.user.isAdmin]);
@@ -63,15 +63,15 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
-    setError("");
+    setError('');
     try {
-      const response = await apiFetch(gymId ? `/gyms/${gymId}` : "/gyms", {
-        method: gymId ? "PATCH" : "POST",
-        headers: { "content-type": "application/json" },
+      const response = await apiFetch(gymId ? `/gyms/${gymId}` : '/gyms', {
+        method: gymId ? 'PATCH' : 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
-          cityId: Number(form.cityId)
-        })
+          cityId: Number(form.cityId),
+        }),
       });
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as {
@@ -80,30 +80,30 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
         throw new Error(
           Array.isArray(payload?.message)
             ? payload.message[0]
-            : (payload?.message ?? "Não foi possível salvar")
+            : (payload?.message ?? 'Não foi possível salvar'),
         );
       }
       const savedGym = (await response.json()) as Gym;
       if (imageFile) {
         const imageData = new FormData();
-        imageData.append("image", imageFile);
+        imageData.append('image', imageFile);
         const imageResponse = await apiFetch(`/gyms/${savedGym.id}/image`, {
-          method: "POST",
-          body: imageData
+          method: 'POST',
+          body: imageData,
         });
         if (!imageResponse.ok)
-          throw new Error("A academia foi salva, mas não foi possível enviar a imagem");
+          throw new Error('A academia foi salva, mas não foi possível enviar a imagem');
       }
       router.push(`/gyms/${savedGym.id}`);
       router.refresh();
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar");
+      setError(requestError instanceof Error ? requestError.message : 'Não foi possível salvar');
     } finally {
       setSaving(false);
     }
   }
 
-  const username = session?.user.username ?? "usuario";
+  const username = session?.user.username ?? 'usuario';
   return (
     <AppShell
       leftAside={<ProfileSidebar username={username} />}
@@ -118,10 +118,10 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
           Voltar
         </Link>
         <h1 className="mt-5 font-[var(--font-heading)] text-4xl tracking-wide">
-          {gymId ? "Editar academia" : "Cadastrar academia"}
+          {gymId ? 'Editar academia' : 'Cadastrar academia'}
         </h1>
         <p className="mt-1 text-sm text-of-muted">
-          {gymId ? "Atualize os dados desta unidade." : "Adicione uma nova academia à comunidade."}
+          {gymId ? 'Atualize os dados desta unidade.' : 'Adicione uma nova academia à comunidade.'}
         </p>
         {loading ? (
           <p className="mt-8 text-sm text-of-muted">Carregando...</p>
@@ -141,7 +141,7 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
             <LocationSelects
               stateId={form.stateId}
               cityId={form.cityId}
-              onStateChange={(stateId) => setForm({ ...form, stateId, cityId: "" })}
+              onStateChange={(stateId) => setForm({ ...form, stateId, cityId: '' })}
               onCityChange={(cityId) => setForm({ ...form, cityId })}
               className={inputClass}
             />
@@ -151,7 +151,7 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
                 <div className="relative mb-3 aspect-[16/7] overflow-hidden rounded-xl border border-of-border">
                   <Image
                     src={previewUrl || form.imageUrl}
-                    alt={previewUrl ? "Nova imagem selecionada" : "Imagem atual da academia"}
+                    alt={previewUrl ? 'Nova imagem selecionada' : 'Imagem atual da academia'}
                     fill
                     sizes="640px"
                     className="object-cover"
@@ -168,7 +168,7 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
                 />
               </label>
               <span className="mt-1 block text-xs text-of-muted">
-                JPG, PNG ou WebP, até 5 MB.{gymId ? " Deixe vazio para manter a imagem atual." : ""}
+                JPG, PNG ou WebP, até 5 MB.{gymId ? ' Deixe vazio para manter a imagem atual.' : ''}
               </span>
             </div>
             {error ? (
@@ -188,7 +188,7 @@ export function GymFormPage({ gymId }: { gymId?: string }) {
                 className="inline-flex items-center gap-2 rounded-xl bg-of-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-of-primaryHover disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
-                {saving ? "Salvando..." : "Salvar academia"}
+                {saving ? 'Salvando...' : 'Salvar academia'}
               </button>
             </div>
           </form>

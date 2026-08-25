@@ -1,41 +1,41 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight, MapPin, Pencil, Plus, RotateCcw, Search } from "lucide-react";
-import { useDeferredValue, useEffect, useState } from "react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight, MapPin, Pencil, Plus, RotateCcw, Search } from 'lucide-react';
+import { useDeferredValue, useEffect, useState } from 'react';
 
-import { AppShell } from "../../../components/layout/app-shell";
-import { CustomSelect } from "../../../components/ui/custom-select";
-import { apiFetch, getAuthSession } from "../../../lib/auth";
-import type { CityOption, StateOption } from "../../locations/location-selects";
-import { ProfileMobileNavigation, ProfileSidebar } from "../../profile/components/profile-sidebar";
-import type { GymPage } from "../types";
+import { AppShell } from '../../../components/layout/app-shell';
+import { CustomSelect } from '../../../components/ui/custom-select';
+import { apiFetch, getAuthSession } from '../../../lib/auth';
+import type { CityOption, StateOption } from '../../locations/location-selects';
+import { ProfileMobileNavigation, ProfileSidebar } from '../../profile/components/profile-sidebar';
+import type { GymPage } from '../types';
 
 const selectClass =
-  "rounded-xl border border-of-border bg-black/20 px-3 py-2.5 text-sm text-of-text outline-none focus:border-of-primary";
+  'rounded-xl border border-of-border bg-black/20 px-3 py-2.5 text-sm text-of-text outline-none focus:border-of-primary';
 
 export function GymsPage() {
   const session = getAuthSession();
   const [states, setStates] = useState<StateOption[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
-  const [stateId, setStateId] = useState("");
-  const [cityId, setCityId] = useState("");
-  const [name, setName] = useState("");
+  const [stateId, setStateId] = useState('');
+  const [cityId, setCityId] = useState('');
+  const [name, setName] = useState('');
   const deferredName = useDeferredValue(name);
   const [page, setPage] = useState(1);
   const [data, setData] = useState<GymPage | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    void apiFetch("/locations/states")
+    void apiFetch('/locations/states')
       .then((response) => response.json())
       .then((items) => setStates(items as StateOption[]));
   }, []);
 
   useEffect(() => {
-    setCityId("");
+    setCityId('');
     if (!stateId) {
       setCities([]);
       return;
@@ -49,23 +49,23 @@ export function GymsPage() {
     let active = true;
     setLoading(true);
     const query = new URLSearchParams({ page: String(page) });
-    if (stateId) query.set("stateId", stateId);
-    if (cityId) query.set("cityId", cityId);
-    if (deferredName.trim()) query.set("name", deferredName.trim());
+    if (stateId) query.set('stateId', stateId);
+    if (cityId) query.set('cityId', cityId);
+    if (deferredName.trim()) query.set('name', deferredName.trim());
     void apiFetch(`/gyms?${query}`)
       .then(async (response) => {
-        if (!response.ok) throw new Error("Não foi possível carregar as academias");
+        if (!response.ok) throw new Error('Não foi possível carregar as academias');
         return response.json() as Promise<GymPage>;
       })
       .then((payload) => {
         if (active) {
           setData(payload);
-          setError("");
+          setError('');
         }
       })
       .catch((requestError) => {
         if (active)
-          setError(requestError instanceof Error ? requestError.message : "Erro ao carregar");
+          setError(requestError instanceof Error ? requestError.message : 'Erro ao carregar');
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -75,7 +75,7 @@ export function GymsPage() {
     };
   }, [page, stateId, cityId, deferredName]);
 
-  const username = session?.user.username ?? "usuario";
+  const username = session?.user.username ?? 'usuario';
   const isAdmin = Boolean(session?.user.isAdmin);
 
   return (
@@ -130,11 +130,11 @@ export function GymsPage() {
                 setPage(1);
               }}
               options={[
-                { value: "", label: "Todos os estados" },
+                { value: '', label: 'Todos os estados' },
                 ...states.map((state) => ({
                   value: String(state.codigoUf),
-                  label: `${state.nome} (${state.uf})`
-                }))
+                  label: `${state.nome} (${state.uf})`,
+                })),
               ]}
               placeholder="Todos os estados"
               ariaLabel="Filtrar por estado"
@@ -150,8 +150,8 @@ export function GymsPage() {
                 setPage(1);
               }}
               options={[
-                { value: "", label: "Todas as cidades" },
-                ...cities.map((city) => ({ value: String(city.codigoIbge), label: city.nome }))
+                { value: '', label: 'Todas as cidades' },
+                ...cities.map((city) => ({ value: String(city.codigoIbge), label: city.nome })),
               ]}
               placeholder="Todas as cidades"
               ariaLabel="Filtrar por cidade"
@@ -164,9 +164,9 @@ export function GymsPage() {
               type="button"
               disabled={!name && !stateId && !cityId}
               onClick={() => {
-                setName("");
-                setStateId("");
-                setCityId("");
+                setName('');
+                setStateId('');
+                setCityId('');
                 setPage(1);
               }}
               className="inline-flex items-center gap-2 rounded-xl border border-of-border px-3 py-2 text-sm text-of-muted transition hover:bg-white/5 hover:text-of-text disabled:cursor-not-allowed disabled:opacity-40"

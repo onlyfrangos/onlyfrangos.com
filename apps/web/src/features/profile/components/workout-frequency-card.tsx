@@ -1,6 +1,6 @@
-import { Flame } from "lucide-react";
+import { Flame } from 'lucide-react';
 
-import type { WorkoutFrequency } from "../types";
+import type { WorkoutFrequency } from '../types';
 
 type WorkoutFrequencyCardProps = {
   data: WorkoutFrequency;
@@ -18,15 +18,15 @@ export function WorkoutFrequencyCard({ data }: WorkoutFrequencyCardProps) {
 
       <div className="mt-4 grid grid-cols-7 gap-2 text-center">
         {data.days.map((day) => (
-          <div key={`${day.label}-${day.trained ? "1" : "0"}`}>
+          <div key={`${day.label}-${day.trained ? '1' : '0'}`}>
             <p className="text-xs text-of-muted">{day.label}</p>
             <span
               className={[
-                "mx-auto mt-1 block h-3.5 w-3.5 rounded-full border",
-                day.trained ? "border-red-600 bg-red-600" : "border-of-muted/70 bg-transparent"
-              ].join(" ")}
+                'mx-auto mt-1 block h-3.5 w-3.5 rounded-full border',
+                day.trained ? 'border-red-600 bg-red-600' : 'border-of-muted/70 bg-transparent',
+              ].join(' ')}
               aria-label={day.trained ? `${day.label}: treinou` : `${day.label}: sem treino`}
-              title={day.trained ? "Treinou" : "Sem treino"}
+              title={day.trained ? 'Treinou' : 'Sem treino'}
             />
           </div>
         ))}

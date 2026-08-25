@@ -1,4 +1,10 @@
-import type { CursorPage, FeedPost, UserPost, UserProfile, UserSuggestion } from "@onlyfrangos/types";
+import type {
+  CursorPage,
+  FeedPost,
+  UserPost,
+  UserProfile,
+  UserSuggestion,
+} from '@onlyfrangos/types';
 
 type SdkConfig = {
   baseUrl: string;
@@ -8,11 +14,11 @@ export function createOnlyFrangosSdk(config: SdkConfig) {
   const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
     const response = await fetch(`${config.baseUrl}${path}`, {
       ...init,
-      cache: "no-store",
+      cache: 'no-store',
       headers: {
-        "content-type": "application/json",
-        ...(init?.headers ?? {})
-      }
+        'content-type': 'application/json',
+        ...(init?.headers ?? {}),
+      },
     });
 
     if (!response.ok) {
@@ -26,7 +32,7 @@ export function createOnlyFrangosSdk(config: SdkConfig) {
     getFeed(limit = 20, cursor?: string) {
       const query = new URLSearchParams({ limit: String(limit) });
       if (cursor) {
-        query.set("cursor", cursor);
+        query.set('cursor', cursor);
       }
       return request<CursorPage<FeedPost>>(`/feed?${query.toString()}`);
     },
@@ -39,6 +45,6 @@ export function createOnlyFrangosSdk(config: SdkConfig) {
     },
     getUserPosts(username: string) {
       return request<UserPost[]>(`/users/${username}/posts`);
-    }
+    },
   };
 }

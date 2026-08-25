@@ -1,4 +1,4 @@
-import { IsInt, IsString, MaxLength, Min, MinLength } from "class-validator";
+import { IsInt, IsString, MaxLength, Min, MinLength } from 'class-validator';
 
 export class SaveGymDto {
   @IsString()

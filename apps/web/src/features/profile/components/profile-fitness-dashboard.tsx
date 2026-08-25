@@ -1,7 +1,7 @@
-import type { GymCardData, ProfileSummaryItem, WorkoutFrequency } from "../types";
+import type { GymCardData, ProfileSummaryItem, WorkoutFrequency } from '../types';
 
-import { GymCard } from "./gym-card";
-import { WorkoutFrequencyCard } from "./workout-frequency-card";
+import { GymCard } from './gym-card';
+import { WorkoutFrequencyCard } from './workout-frequency-card';
 
 type ProfileFitnessDashboardProps = {
   workoutFrequency?: WorkoutFrequency;
@@ -12,7 +12,7 @@ type ProfileFitnessDashboardProps = {
 export function ProfileFitnessDashboard({
   workoutFrequency,
   gymCard,
-  summaryItems
+  summaryItems,
 }: ProfileFitnessDashboardProps) {
   return (
     <div className="space-y-3">

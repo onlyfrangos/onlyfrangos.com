@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { Heart, Reply, Send, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Heart, Reply, Send, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import { apiFetch, getAuthSession } from "../../../lib/auth";
-import { resolveAvatarUrl } from "../../../lib/avatar";
-import { ConfirmModal } from "../../../components/ui/confirm-modal";
+import { apiFetch, getAuthSession } from '../../../lib/auth';
+import { resolveAvatarUrl } from '../../../lib/avatar';
+import { ConfirmModal } from '../../../components/ui/confirm-modal';
 
 type Comment = {
   id: string;
@@ -22,14 +22,14 @@ type Comment = {
 export function PostComments({
   postId,
   canModerate = false,
-  onCountChange
+  onCountChange,
 }: {
   postId: string;
   canModerate?: boolean;
   onCountChange?: (count: number) => void;
 }) {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -50,12 +50,12 @@ export function PostComments({
     event.preventDefault();
     if (!content.trim()) return;
     const response = await apiFetch(`/posts/${postId}/comments`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ content, parentId: replyTo?.id ?? null })
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ content, parentId: replyTo?.id ?? null }),
     });
     if (response.ok) {
-      setContent("");
+      setContent('');
       setReplyTo(null);
       await load();
     }
@@ -123,7 +123,7 @@ function CommentItem({
   postId,
   onReply,
   onChanged,
-  canModerate
+  canModerate,
 }: {
   comment: Comment;
   postId: string;
@@ -137,7 +137,7 @@ function CommentItem({
 
   async function toggleLike() {
     await apiFetch(`/posts/${postId}/comments/${comment.id}/likes`, {
-      method: comment.liked ? "DELETE" : "POST"
+      method: comment.liked ? 'DELETE' : 'POST',
     });
     await onChanged();
   }
@@ -145,7 +145,7 @@ function CommentItem({
   async function remove() {
     setDeleting(true);
     const response = await apiFetch(`/posts/${postId}/comments/${comment.id}`, {
-      method: "DELETE"
+      method: 'DELETE',
     });
     if (response.ok) {
       setConfirmingDelete(false);
@@ -173,7 +173,7 @@ function CommentItem({
           <p className="text-sm">
             <Link href={`/${comment.author.username}`} className="font-semibold">
               @{comment.author.username}
-            </Link>{" "}
+            </Link>{' '}
             {comment.content}
           </p>
           <div className="mt-1 flex gap-3 text-xs text-of-muted">
@@ -188,9 +188,9 @@ function CommentItem({
             <button
               type="button"
               onClick={() => void toggleLike()}
-              className={`inline-flex items-center gap-1 ${comment.liked ? "text-red-400" : ""}`}
+              className={`inline-flex items-center gap-1 ${comment.liked ? 'text-red-400' : ''}`}
             >
-              <Heart className={`h-3 w-3 ${comment.liked ? "fill-current" : ""}`} />
+              <Heart className={`h-3 w-3 ${comment.liked ? 'fill-current' : ''}`} />
               {comment.likeCount}
             </button>
             {ownComment || canModerate ? (

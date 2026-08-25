@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { Check, ChevronDown, Search } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import Image from 'next/image';
+import { Check, ChevronDown, Search } from 'lucide-react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 
 export type SelectOption = { value: string; label: string; imageUrl?: string };
 
@@ -23,10 +23,10 @@ export function CustomSelect({
   placeholder,
   ariaLabel,
   disabled = false,
-  className = ""
+  className = '',
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const rootRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
   const selected = options.find((option) => option.value === value);
@@ -41,13 +41,13 @@ export function CustomSelect({
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     }
     function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === 'Escape') setOpen(false);
     }
-    document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', closeOnEscape);
     return () => {
-      document.removeEventListener("mousedown", close);
-      document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', closeOnEscape);
     };
   }, []);
 
@@ -66,25 +66,25 @@ export function CustomSelect({
           aria-expanded={open}
           aria-controls={listboxId}
           disabled={disabled}
-          value={open ? query : (selected?.label ?? "")}
+          value={open ? query : (selected?.label ?? '')}
           placeholder={placeholder}
           onFocus={() => {
             setOpen(true);
-            setQuery("");
+            setQuery('');
           }}
           onChange={(event) => {
             setQuery(event.target.value);
             setOpen(true);
           }}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && open && filteredOptions[0]) {
+            if (event.key === 'Enter' && open && filteredOptions[0]) {
               event.preventDefault();
               onChange(filteredOptions[0].value);
-              setQuery("");
+              setQuery('');
               setOpen(false);
             }
           }}
-          className={`w-full pr-10 disabled:cursor-not-allowed disabled:opacity-50 ${className} ${!open && selected?.imageUrl ? "!pl-12" : ""}`}
+          className={`w-full pr-10 disabled:cursor-not-allowed disabled:opacity-50 ${className} ${!open && selected?.imageUrl ? '!pl-12' : ''}`}
         />
         <button
           type="button"
@@ -92,11 +92,11 @@ export function CustomSelect({
           disabled={disabled}
           onClick={() => {
             setOpen((current) => !current);
-            setQuery("");
+            setQuery('');
           }}
           className="absolute inset-y-0 right-0 grid w-10 place-items-center text-of-muted disabled:opacity-50"
         >
-          <ChevronDown className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} />
+          <ChevronDown className={`h-4 w-4 transition ${open ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
@@ -122,17 +122,23 @@ export function CustomSelect({
                   event.preventDefault();
                   event.stopPropagation();
                   onChange(option.value);
-                  setQuery("");
+                  setQuery('');
                   setOpen(false);
                 }}
                 className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                  active ? "bg-of-primary/15 text-of-primary" : "text-of-text hover:bg-white/5"
+                  active ? 'bg-of-primary/15 text-of-primary' : 'text-of-text hover:bg-white/5'
                 }`}
               >
                 <span className="flex min-w-0 items-center gap-3">
                   {option.imageUrl ? (
                     <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-of-border bg-black/20">
-                      <Image src={option.imageUrl} alt="" fill sizes="36px" className="object-cover" />
+                      <Image
+                        src={option.imageUrl}
+                        alt=""
+                        fill
+                        sizes="36px"
+                        className="object-cover"
+                      />
                     </span>
                   ) : null}
                   <span className="truncate">{option.label}</span>
@@ -152,8 +158,8 @@ export function CustomSelect({
 
 function normalize(value: string) {
   return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("pt-BR")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
     .trim();
 }

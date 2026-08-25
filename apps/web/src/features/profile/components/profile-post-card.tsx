@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { Heart, MessageCircle } from "lucide-react";
-import type { ProfilePostItem } from "../types";
+import Image from 'next/image';
+import { Heart, MessageCircle } from 'lucide-react';
+import type { ProfilePostItem } from '../types';
 
 export function ProfilePostCard({ post, onOpen }: { post: ProfilePostItem; onOpen: () => void }) {
   return (

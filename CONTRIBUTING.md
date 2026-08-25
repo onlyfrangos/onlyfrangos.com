@@ -10,11 +10,11 @@ O OnlyFrangos é um projeto open source e contribuições são muito bem-vindas.
 
 Antes de começar, certifique-se de ter instalado:
 
-* Node.js
-* pnpm
-* Docker
-* Docker Compose
-* Git
+- Node.js
+- pnpm
+- Docker
+- Docker Compose
+- Git
 
 ### 1. Faça um fork
 
@@ -86,16 +86,16 @@ Prefixos recomendados:
 
 Alguns princípios que buscamos manter no projeto:
 
-* TypeScript como linguagem principal;
-* código simples e legível;
-* módulos pequenos e coesos;
-* responsabilidades bem definidas;
-* evitar abstrações prematuras;
-* evitar overengineering;
-* reutilizar componentes quando fizer sentido;
-* manter tipagem forte sempre que possível;
-* adicionar ou atualizar testes quando houver mudança de comportamento;
-* manter documentação atualizada quando necessário.
+- TypeScript como linguagem principal;
+- código simples e legível;
+- módulos pequenos e coesos;
+- responsabilidades bem definidas;
+- evitar abstrações prematuras;
+- evitar overengineering;
+- reutilizar componentes quando fizer sentido;
+- manter tipagem forte sempre que possível;
+- adicionar ou atualizar testes quando houver mudança de comportamento;
+- manter documentação atualizada quando necessário.
 
 Prefira:
 
@@ -135,10 +135,10 @@ Alterações que modificam o comportamento da aplicação devem, sempre que apli
 
 Antes de enviar seu Pull Request, execute os comandos de validação disponíveis no projeto e certifique-se de que:
 
-* a aplicação compila;
-* o lint passa;
-* os testes existentes continuam passando;
-* novos comportamentos possuem testes quando necessário.
+- a aplicação compila;
+- o lint passa;
+- os testes existentes continuam passando;
+- novos comportamentos possuem testes quando necessário.
 
 Não remova ou altere testes apenas para fazer uma implementação incorreta passar.
 
@@ -146,11 +146,11 @@ Não remova ou altere testes apenas para fazer uma implementação incorreta pas
 
 Para alterações relacionadas à interface, procure manter:
 
-* consistência visual;
-* responsividade;
-* acessibilidade;
-* reutilização adequada de componentes;
-* compatibilidade com o design existente.
+- consistência visual;
+- responsividade;
+- acessibilidade;
+- reutilização adequada de componentes;
+- compatibilidade com o design existente.
 
 Pull Requests que modificarem significativamente a interface devem incluir **screenshots ou vídeos curtos** demonstrando o resultado.
 
@@ -162,13 +162,13 @@ Antes de abrir uma Issue, verifique se o problema já não foi reportado.
 
 Ao reportar um bug, tente incluir:
 
-* descrição clara do problema;
-* comportamento esperado;
-* comportamento atual;
-* passos para reprodução;
-* navegador ou ambiente utilizado;
-* logs relevantes;
-* screenshots, quando aplicável.
+- descrição clara do problema;
+- comportamento esperado;
+- comportamento atual;
+- passos para reprodução;
+- navegador ou ambiente utilizado;
+- logs relevantes;
+- screenshots, quando aplicável.
 
 Quanto mais fácil for reproduzir o problema, mais fácil será corrigi-lo.
 
@@ -180,10 +180,10 @@ Antes de implementar uma funcionalidade grande, recomendamos abrir uma Issue par
 
 Explique:
 
-* qual problema a funcionalidade resolve;
-* como você imagina a solução;
-* quais partes do projeto seriam afetadas;
-* possíveis alternativas consideradas.
+- qual problema a funcionalidade resolve;
+- como você imagina a solução;
+- quais partes do projeto seriam afetadas;
+- possíveis alternativas consideradas.
 
 Isso evita trabalho desnecessário em funcionalidades que talvez precisem ser discutidas antes da implementação.
 
@@ -204,15 +204,15 @@ Evite Pull Requests muito grandes sempre que for possível dividi-los em altera�
 
 Antes de enviar:
 
-* [ ] O código compila corretamente.
-* [ ] O lint passa sem erros.
-* [ ] Os testes existentes continuam passando.
-* [ ] Novos comportamentos possuem testes quando necessário.
-* [ ] Não há código temporário ou logs de debug.
-* [ ] Não há secrets, tokens ou credenciais no código.
-* [ ] A documentação foi atualizada quando necessário.
-* [ ] O Pull Request possui contexto suficiente para ser revisado.
-* [ ] Alterações de UI possuem screenshots quando necessário.
+- [ ] O código compila corretamente.
+- [ ] O lint passa sem erros.
+- [ ] Os testes existentes continuam passando.
+- [ ] Novos comportamentos possuem testes quando necessário.
+- [ ] Não há código temporário ou logs de debug.
+- [ ] Não há secrets, tokens ou credenciais no código.
+- [ ] A documentação foi atualizada quando necessário.
+- [ ] O Pull Request possui contexto suficiente para ser revisado.
+- [ ] Alterações de UI possuem screenshots quando necessário.
 
 ## Segurança
 

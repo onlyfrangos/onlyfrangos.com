@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto";
-import { Injectable } from "@nestjs/common";
+import { randomUUID } from 'node:crypto';
+import { Injectable } from '@nestjs/common';
 
-import { PrismaService } from "../shared/prisma.service";
+import { PrismaService } from '../shared/prisma.service';
 
 @Injectable()
 export class LikesService {
@@ -10,8 +10,8 @@ export class LikesService {
   async list(postId: string, viewerId: string) {
     const likes = await this.prisma.like.findMany({
       where: { postId },
-      orderBy: { createdAt: "desc" },
-      include: { user: { include: { profile: true } } }
+      orderBy: { createdAt: 'desc' },
+      include: { user: { include: { profile: true } } },
     });
     return {
       liked: likes.some((like) => like.userId === viewerId),
@@ -20,8 +20,8 @@ export class LikesService {
         id: like.user.id,
         username: like.user.username,
         name: like.user.profile?.name ?? like.user.username,
-        avatarUrl: like.user.profile?.avatarUrl ?? ""
-      }))
+        avatarUrl: like.user.profile?.avatarUrl ?? '',
+      })),
     };
   }
 
@@ -30,15 +30,15 @@ export class LikesService {
       where: {
         userId_postId: {
           userId,
-          postId
-        }
+          postId,
+        },
       },
       update: {},
       create: {
         id: randomUUID(),
         postId,
-        userId
-      }
+        userId,
+      },
     });
 
     return { liked: true };
@@ -48,8 +48,8 @@ export class LikesService {
     await this.prisma.like.deleteMany({
       where: {
         postId,
-        userId
-      }
+        userId,
+      },
     });
 
     return { liked: false };

@@ -2,55 +2,59 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  NotFoundException
-} from "@nestjs/common";
-import { randomUUID } from "node:crypto";
-import * as bcrypt from "bcrypt";
+  NotFoundException,
+} from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+import * as bcrypt from 'bcrypt';
 
-import { PrismaService } from "../shared/prisma.service";
-import { isReservedUsername, USERNAME_OR_EMAIL_ALREADY_EXISTS_MESSAGE, USERNAME_UNAVAILABLE_MESSAGE } from "../auth/username-policy";
+import { PrismaService } from '../shared/prisma.service';
+import {
+  isReservedUsername,
+  USERNAME_OR_EMAIL_ALREADY_EXISTS_MESSAGE,
+  USERNAME_UNAVAILABLE_MESSAGE,
+} from '../auth/username-policy';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async adminList(pageInput = 1, search = "") {
+  async adminList(pageInput = 1, search = '') {
     const page = Math.max(Math.trunc(pageInput) || 1, 1);
     const query = search.trim();
     const where = query
       ? {
           OR: [
-            { username: { contains: query, mode: "insensitive" as const } },
-            { email: { contains: query, mode: "insensitive" as const } },
-            { profile: { is: { name: { contains: query, mode: "insensitive" as const } } } }
-          ]
+            { username: { contains: query, mode: 'insensitive' as const } },
+            { email: { contains: query, mode: 'insensitive' as const } },
+            { profile: { is: { name: { contains: query, mode: 'insensitive' as const } } } },
+          ],
         }
       : {};
     const [users, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
         where,
         include: { profile: { include: { city: { include: { state: true } } } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
         skip: (page - 1) * 20,
-        take: 20
+        take: 20,
       }),
-      this.prisma.user.count({ where })
+      this.prisma.user.count({ where }),
     ]);
     return {
       items: users.map((user) => this.serializeAdminUser(user)),
       page,
       pageSize: 20,
       total,
-      totalPages: Math.max(Math.ceil(total / 20), 1)
+      totalPages: Math.max(Math.ceil(total / 20), 1),
     };
   }
 
   async adminGet(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: { profile: { include: { city: { include: { state: true } } } } }
+      include: { profile: { include: { city: { include: { state: true } } } } },
     });
-    if (!user) throw new NotFoundException("Usuário não encontrado");
+    if (!user) throw new NotFoundException('Usuário não encontrado');
     return this.serializeAdminUser(user);
   }
 
@@ -63,12 +67,12 @@ export class UsersService {
     cityId: number | null;
     isAdmin: boolean;
   }) {
-    if (!body.password) throw new BadRequestException("A senha é obrigatória ao criar um usuário");
+    if (!body.password) throw new BadRequestException('A senha é obrigatória ao criar um usuário');
     const username = body.username.trim().toLowerCase();
     const email = body.email.trim().toLowerCase();
     if (isReservedUsername(username)) throw new ConflictException(USERNAME_UNAVAILABLE_MESSAGE);
     const conflict = await this.prisma.user.findFirst({ where: { OR: [{ username }, { email }] } });
-    if (conflict) throw new ConflictException("Nome de usuário ou e-mail já está em uso");
+    if (conflict) throw new ConflictException('Nome de usuário ou e-mail já está em uso');
 
     const user = await this.prisma.user.create({
       data: {
@@ -78,10 +82,10 @@ export class UsersService {
         passwordHash: await bcrypt.hash(body.password, 12),
         isAdmin: body.isAdmin,
         profile: {
-          create: { id: randomUUID(), name: body.name.trim(), age: body.age, cityId: body.cityId }
-        }
+          create: { id: randomUUID(), name: body.name.trim(), age: body.age, cityId: body.cityId },
+        },
       },
-      include: { profile: { include: { city: { include: { state: true } } } } }
+      include: { profile: { include: { city: { include: { state: true } } } } },
     });
     return this.serializeAdminUser(user);
   }
@@ -96,17 +100,17 @@ export class UsersService {
       age: number | null;
       cityId: number | null;
       isAdmin: boolean;
-    }
+    },
   ) {
     const username = body.username.trim().toLowerCase();
     const email = body.email.trim().toLowerCase();
     if (isReservedUsername(username)) throw new ConflictException(USERNAME_UNAVAILABLE_MESSAGE);
     const conflict = await this.prisma.user.findFirst({
-      where: { id: { not: id }, OR: [{ username }, { email }] }
+      where: { id: { not: id }, OR: [{ username }, { email }] },
     });
-    if (conflict) throw new ConflictException("Nome de usuário ou e-mail já está em uso");
+    if (conflict) throw new ConflictException('Nome de usuário ou e-mail já está em uso');
     const existing = await this.prisma.user.findUnique({ where: { id }, select: { id: true } });
-    if (!existing) throw new NotFoundException("Usuário não encontrado");
+    if (!existing) throw new NotFoundException('Usuário não encontrado');
 
     await this.prisma.$transaction([
       this.prisma.user.update({
@@ -115,8 +119,8 @@ export class UsersService {
           username,
           email,
           isAdmin: body.isAdmin,
-          ...(body.password ? { passwordHash: await bcrypt.hash(body.password, 12) } : {})
-        }
+          ...(body.password ? { passwordHash: await bcrypt.hash(body.password, 12) } : {}),
+        },
       }),
       this.prisma.profile.upsert({
         where: { userId: id },
@@ -126,17 +130,17 @@ export class UsersService {
           userId: id,
           name: body.name.trim(),
           age: body.age,
-          cityId: body.cityId
-        }
-      })
+          cityId: body.cityId,
+        },
+      }),
     ]);
     return this.adminGet(id);
   }
 
   async adminDelete(id: string, actingUserId: string) {
-    if (id === actingUserId) throw new BadRequestException("Você não pode excluir a própria conta");
+    if (id === actingUserId) throw new BadRequestException('Você não pode excluir a própria conta');
     const existing = await this.prisma.user.findUnique({ where: { id }, select: { id: true } });
-    if (!existing) throw new NotFoundException("Usuário não encontrado");
+    if (!existing) throw new NotFoundException('Usuário não encontrado');
     await this.prisma.user.delete({ where: { id } });
     return { success: true };
   }
@@ -145,15 +149,15 @@ export class UsersService {
     const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.trunc(limit), 1), 20) : 5;
     const users = await this.prisma.user.findMany({
       take: safeLimit,
-      orderBy: { createdAt: "desc" },
-      include: { profile: true }
+      orderBy: { createdAt: 'desc' },
+      include: { profile: true },
     });
 
     return users.map((user) => ({
       id: user.id,
       username: user.username,
       name: user.profile?.name ?? user.username,
-      avatarUrl: user.profile?.avatarUrl ?? ""
+      avatarUrl: user.profile?.avatarUrl ?? '',
     }));
   }
 
@@ -164,24 +168,24 @@ export class UsersService {
         profile: {
           include: {
             gym: true,
-            city: { include: { state: true } }
-          }
+            city: { include: { state: true } },
+          },
         },
         _count: {
           select: {
-            posts: true
-          }
-        }
-      }
+            posts: true,
+          },
+        },
+      },
     });
 
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
     const [followersCount, followingCount] = await Promise.all([
       this.prisma.follow.count({ where: { followingId: user.id } }),
-      this.prisma.follow.count({ where: { followerId: user.id } })
+      this.prisma.follow.count({ where: { followerId: user.id } }),
     ]);
 
     const profile = user.profile;
@@ -191,8 +195,8 @@ export class UsersService {
       username: user.username,
       isAdmin: user.isAdmin,
       name: profile?.name ?? user.username,
-      bio: profile?.bio ?? "",
-      avatarUrl: profile?.avatarUrl ?? "",
+      bio: profile?.bio ?? '',
+      avatarUrl: profile?.avatarUrl ?? '',
       createdAt: user.createdAt.toISOString(),
       postCount: user._count.posts,
       followersCount,
@@ -210,12 +214,12 @@ export class UsersService {
         physicalInfo: {
           weight: profile?.weight,
           bodyFat: profile?.bodyFat,
-          arm: profile?.arm
+          arm: profile?.arm,
         },
         showGym: profile?.showGym ?? true,
         showCity: profile?.showCity ?? true,
-        showPhysicalInfo: profile?.showPhysicalInfo ?? true
-      }
+        showPhysicalInfo: profile?.showPhysicalInfo ?? true,
+      },
     };
   }
 
@@ -236,12 +240,12 @@ export class UsersService {
       showGym: boolean;
       showCity: boolean;
       showPhysicalInfo: boolean;
-    }
+    },
   ) {
     const username = body.username.trim().toLowerCase();
     const email = body.email.trim().toLowerCase();
     const name = body.name.trim();
-    const bio = body.bio?.trim() ?? "";
+    const bio = body.bio?.trim() ?? '';
 
     if (isReservedUsername(body.username)) {
       throw new ConflictException(USERNAME_UNAVAILABLE_MESSAGE);
@@ -249,7 +253,7 @@ export class UsersService {
 
     const conflictingUser = await this.prisma.user.findFirst({
       where: { id: { not: id }, OR: [{ username }, { email }] },
-      select: { id: true }
+      select: { id: true },
     });
 
     if (conflictingUser) {
@@ -259,7 +263,7 @@ export class UsersService {
     if (body.gymId) {
       const gym = await this.prisma.gym.findUnique({ where: { id: body.gymId } });
       if (!gym || body.cityId === null || gym.cityId !== body.cityId) {
-        throw new BadRequestException("A academia precisa estar localizada na cidade informada");
+        throw new BadRequestException('A academia precisa estar localizada na cidade informada');
       }
     }
 
@@ -279,7 +283,7 @@ export class UsersService {
           arm: body.arm?.trim() || null,
           showGym: body.showGym,
           showCity: body.showCity,
-          showPhysicalInfo: body.showPhysicalInfo
+          showPhysicalInfo: body.showPhysicalInfo,
         },
         create: {
           id: randomUUID(),
@@ -295,9 +299,9 @@ export class UsersService {
           arm: body.arm?.trim() || null,
           showGym: body.showGym,
           showCity: body.showCity,
-          showPhysicalInfo: body.showPhysicalInfo
-        }
-      })
+          showPhysicalInfo: body.showPhysicalInfo,
+        },
+      }),
     ]);
 
     return this.getById(id);
@@ -315,24 +319,24 @@ export class UsersService {
         profile: {
           include: {
             gym: true,
-            city: { include: { state: true } }
-          }
+            city: { include: { state: true } },
+          },
         },
         _count: {
           select: {
-            posts: true
-          }
-        }
-      }
+            posts: true,
+          },
+        },
+      },
     });
 
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
     const [followersCount, followingCount] = await Promise.all([
       this.prisma.follow.count({ where: { followingId: user.id } }),
-      this.prisma.follow.count({ where: { followerId: user.id } })
+      this.prisma.follow.count({ where: { followerId: user.id } }),
     ]);
 
     const profile = user.profile;
@@ -342,8 +346,8 @@ export class UsersService {
       id: user.id,
       username: user.username,
       name: profile?.name ?? user.username,
-      bio: profile?.bio ?? "",
-      avatarUrl: profile?.avatarUrl ?? "",
+      bio: profile?.bio ?? '',
+      avatarUrl: profile?.avatarUrl ?? '',
       createdAt: user.createdAt.toISOString(),
       postCount: user._count.posts,
       followersCount,
@@ -359,10 +363,10 @@ export class UsersService {
           ? {
               weight: profile?.weight,
               bodyFat: profile?.bodyFat,
-              arm: profile?.arm
+              arm: profile?.arm,
             }
-          : null
-      }
+          : null,
+      },
     };
   }
 
@@ -370,23 +374,23 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { username } });
 
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
     const userPosts = await this.prisma.post.findMany({
       where: { authorId: user.id },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         media: {
-          orderBy: { order: "asc" }
+          orderBy: { order: 'asc' },
         },
         _count: {
           select: {
             likes: true,
-            comments: true
-          }
-        }
-      }
+            comments: true,
+          },
+        },
+      },
     });
 
     return userPosts.map((post) => {
@@ -394,11 +398,11 @@ export class UsersService {
       return {
         id: post.id,
         caption: post.caption,
-        imageUrl: imageUrls[0] ?? "",
+        imageUrl: imageUrls[0] ?? '',
         imageUrls,
         createdAt: post.createdAt.toISOString(),
         likeCount: post._count.likes,
-        commentCount: post._count.comments
+        commentCount: post._count.comments,
       };
     });
   }
@@ -425,11 +429,11 @@ export class UsersService {
       createdAt: user.createdAt.toISOString(),
       name: user.profile?.name ?? user.username,
       age: user.profile?.age ?? null,
-      avatarUrl: user.profile?.avatarUrl ?? "",
+      avatarUrl: user.profile?.avatarUrl ?? '',
       cityId: user.profile?.cityId ?? null,
       city: user.profile?.city?.nome ?? null,
       stateId: user.profile?.city?.codigoUf ?? null,
-      state: user.profile?.city?.state.uf ?? null
+      state: user.profile?.city?.state.uf ?? null,
     };
   }
 }

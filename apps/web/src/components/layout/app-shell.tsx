@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 type AppShellNavItem = {
   href: string;
@@ -15,10 +15,10 @@ type AppShellProps = {
 };
 
 const navItems: AppShellNavItem[] = [
-  { href: "/feed", label: "Feed" },
-  { href: "/extrastickersbr", label: "Perfil" },
-  { href: "#", label: "Explorar" },
-  { href: "#", label: "Notificacoes" }
+  { href: '/feed', label: 'Feed' },
+  { href: '/extrastickersbr', label: 'Perfil' },
+  { href: '#', label: 'Explorar' },
+  { href: '#', label: 'Notificacoes' },
 ];
 
 export function AppShell({
@@ -27,11 +27,11 @@ export function AppShell({
   rightAside,
   rightAsideClassName,
   mobileNavItems = navItems,
-  mobileNavigation
+  mobileNavigation,
 }: AppShellProps) {
   return (
     <div
-      className={`mx-auto min-h-screen w-full max-w-[1400px] px-3 pb-20 pt-4 sm:px-6 lg:grid lg:gap-6 lg:px-8 lg:pb-6 ${rightAside ? "lg:grid-cols-[240px_minmax(0,1fr)_320px]" : "lg:grid-cols-[240px_minmax(0,1fr)]"}`}
+      className={`mx-auto min-h-screen w-full max-w-[1400px] px-3 pb-20 pt-4 sm:px-6 lg:grid lg:gap-6 lg:px-8 lg:pb-6 ${rightAside ? 'lg:grid-cols-[240px_minmax(0,1fr)_320px]' : 'lg:grid-cols-[240px_minmax(0,1fr)]'}`}
     >
       {leftAside ? (
         <aside className="hidden rounded-2xl border border-of-border bg-of-surface/80 p-4 lg:sticky lg:top-6 lg:block lg:h-[calc(100vh-3rem)]">
@@ -68,9 +68,9 @@ export function AppShell({
       {rightAside ? (
         <aside
           className={[
-            "hidden rounded-2xl border border-of-border bg-of-surface/70 p-4 lg:block",
-            rightAsideClassName ?? ""
-          ].join(" ")}
+            'hidden rounded-2xl border border-of-border bg-of-surface/70 p-4 lg:block',
+            rightAsideClassName ?? '',
+          ].join(' ')}
         >
           {rightAside}
         </aside>

@@ -245,11 +245,11 @@ Analise a arquitetura existente e proponha o contrato mais consistente.
 
 A API deve validar antes de gerar a Presigned URL:
 
-* usuário autenticado;
-* MIME type permitido;
-* tamanho máximo;
-* contexto do upload;
-* permissões necessárias.
+- usuário autenticado;
+- MIME type permitido;
+- tamanho máximo;
+- contexto do upload;
+- permissões necessárias.
 
 Inicialmente permita apenas imagens.
 
@@ -360,8 +360,8 @@ Inicialmente, as imagens dos posts serão **públicas**.
 
 Portanto:
 
-* upload → Presigned URL;
-* leitura → URL pública através de `img.onlyfrangos.com`.
+- upload → Presigned URL;
+- leitura → URL pública através de `img.onlyfrangos.com`.
 
 Não gere Presigned URLs para cada visualização do feed.
 
@@ -369,10 +369,10 @@ Isso deve manter a leitura das imagens simples e eficiente.
 
 Entretanto, documente que essa estratégia precisará ser revista futuramente caso sejam implementados:
 
-* perfis privados;
-* conteúdo premium;
-* assinaturas;
-* mídia com controle de acesso.
+- perfis privados;
+- conteúdo premium;
+- assinaturas;
+- mídia com controle de acesso.
 
 Não implemente essa complexidade agora.
 
@@ -415,12 +415,12 @@ O OnlyFrangos inicialmente aceitará somente imagens.
 
 Não adicione:
 
-* transcoding;
-* HLS;
-* DASH;
-* FFmpeg;
-* thumbnails de vídeo;
-* upload de vídeo.
+- transcoding;
+- HLS;
+- DASH;
+- FFmpeg;
+- thumbnails de vídeo;
+- upload de vídeo.
 
 Evite adicionar complexidade que não será utilizada no MVP.
 
@@ -464,13 +464,13 @@ Adicione testes para as regras importantes da camada de storage/media.
 
 Principalmente:
 
-* geração correta de object keys;
-* validação de MIME type;
-* validação de tamanho;
-* usuário não autenticado;
-* geração da URL pública;
-* comportamento do provider;
-* expiração/configuração das Presigned URLs.
+- geração correta de object keys;
+- validação de MIME type;
+- validação de tamanho;
+- usuário não autenticado;
+- geração da URL pública;
+- comportamento do provider;
+- expiração/configuração das Presigned URLs.
 
 Não faça testes dependerem do Cloudflare R2 real.
 
@@ -484,12 +484,12 @@ Atualize a documentação necessária.
 
 Inclua pelo menos:
 
-* variáveis de ambiente;
-* configuração do Cloudflare R2;
-* configuração de desenvolvimento;
-* fluxo de upload;
-* configuração de `img.onlyfrangos.com`;
-* limitações atuais.
+- variáveis de ambiente;
+- configuração do Cloudflare R2;
+- configuração de desenvolvimento;
+- fluxo de upload;
+- configuração de `img.onlyfrangos.com`;
+- limitações atuais.
 
 Se fizer sentido, crie:
 
@@ -534,14 +534,14 @@ Depois implemente em etapas pequenas.
 
 Ao final, informe:
 
-* arquivos criados;
-* arquivos modificados;
-* novas dependências;
-* novas variáveis de ambiente;
-* como configurar o R2;
-* como testar o upload localmente;
-* como testar o upload utilizando Cloudflare R2;
-* decisões arquiteturais relevantes.
+- arquivos criados;
+- arquivos modificados;
+- novas dependências;
+- novas variáveis de ambiente;
+- como configurar o R2;
+- como testar o upload localmente;
+- como testar o upload utilizando Cloudflare R2;
+- decisões arquiteturais relevantes.
 
 Priorize **simplicidade, segurança, baixo acoplamento e facilidade de contribuição open source**.
 

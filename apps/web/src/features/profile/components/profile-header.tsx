@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { Check, CheckCheck, Dumbbell, MapPin, Sprout, Edit2, Share2 } from "lucide-react";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Check, CheckCheck, Dumbbell, MapPin, Sprout, Edit2, Share2 } from 'lucide-react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 
-import { getAuthSession } from "../../../lib/auth";
+import { getAuthSession } from '../../../lib/auth';
 
-import type { ProfileActionMode } from "../types";
+import type { ProfileActionMode } from '../types';
 
 type ProfileHeaderProps = {
   username: string;
@@ -42,14 +42,14 @@ export function ProfileHeader({
   followersCount,
   followingCount,
   actionMode,
-  onEditProfile
+  onEditProfile,
 }: ProfileHeaderProps) {
   const [effectiveActionMode, setEffectiveActionMode] = useState(actionMode);
 
   useEffect(() => {
     const loggedUsername = getAuthSession()?.user.username;
     setEffectiveActionMode(
-      actionMode === "self" || loggedUsername === username ? "self" : "visitor"
+      actionMode === 'self' || loggedUsername === username ? 'self' : 'visitor',
     );
   }, [actionMode, username]);
 
@@ -100,7 +100,7 @@ export function ProfileHeader({
         <div className="flex flex-wrap gap-x-5 gap-y-2">
           {gymLabel ? (
             <Link
-              href={gymHref ?? "#"}
+              href={gymHref ?? '#'}
               className="inline-flex items-center gap-1.5 hover:text-of-primary"
             >
               <Dumbbell className="h-3.5 w-3.5 text-red-400" />
@@ -138,7 +138,7 @@ type StatItemProps = {
 function StatItem({ value, label }: StatItemProps) {
   return (
     <span>
-      <strong className="font-semibold text-of-text">{value}</strong>{" "}
+      <strong className="font-semibold text-of-text">{value}</strong>{' '}
       <span className="text-of-muted">{label}</span>
     </span>
   );
@@ -159,8 +159,8 @@ function ProfileActions({ actionMode, onEditProfile, username }: ProfileActionsP
     function closeShareMenu(event: MouseEvent) {
       if (!shareRef.current?.contains(event.target as Node)) setShareOpen(false);
     }
-    document.addEventListener("mousedown", closeShareMenu);
-    return () => document.removeEventListener("mousedown", closeShareMenu);
+    document.addEventListener('mousedown', closeShareMenu);
+    return () => document.removeEventListener('mousedown', closeShareMenu);
   }, []);
 
   async function copyProfileLink() {
@@ -174,7 +174,7 @@ function ProfileActions({ actionMode, onEditProfile, username }: ProfileActionsP
     }
   }
 
-  if (actionMode === "visitor") {
+  if (actionMode === 'visitor') {
     return (
       <div className="mt-5 flex w-full items-center gap-2 border-t border-of-border pt-4">
         <button
@@ -246,10 +246,10 @@ const ShareMenu = forwardRef<
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Compartilhar perfil"
-        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${copied ? "border-of-primary/50 text-of-primary" : "border-of-border text-of-text hover:bg-white/5"}`}
+        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${copied ? 'border-of-primary/50 text-of-primary' : 'border-of-border text-of-text hover:bg-white/5'}`}
       >
         {copied ? <CheckCheck className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-        <span className="hidden sm:inline">{copied ? "Copiado" : "Compartilhar"}</span>
+        <span className="hidden sm:inline">{copied ? 'Copiado' : 'Compartilhar'}</span>
       </button>
       {open ? (
         <div
@@ -276,7 +276,7 @@ function LinkifiedBio({ bio }: { bio: string }) {
   return (
     <p className="mt-4 whitespace-pre-wrap text-base text-of-text">
       {bio.split(urlPattern).map((part, index) =>
-        part.startsWith("http://") || part.startsWith("https://") ? (
+        part.startsWith('http://') || part.startsWith('https://') ? (
           <a
             key={`${part}-${index}`}
             href={part}
@@ -288,7 +288,7 @@ function LinkifiedBio({ bio }: { bio: string }) {
           </a>
         ) : (
           part
-        )
+        ),
       )}
     </p>
   );

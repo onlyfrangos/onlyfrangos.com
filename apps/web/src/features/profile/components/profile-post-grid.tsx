@@ -1,38 +1,38 @@
-"use client";
+'use client';
 
-import { ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
-import type { ProfilePostItem } from "../types";
-import { ProfilePostCard } from "./profile-post-card";
-import { ProfilePostModal } from "./profile-post-modal";
+import { ChevronDown } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import type { ProfilePostItem } from '../types';
+import { ProfilePostCard } from './profile-post-card';
+import { ProfilePostModal } from './profile-post-modal';
 
 type Props = { posts: ProfilePostItem[]; username: string; avatarUrl: string; canManage?: boolean };
-type SortOrder = "recent" | "oldest" | "liked";
+type SortOrder = 'recent' | 'oldest' | 'liked';
 const sortLabels: Record<SortOrder, string> = {
-  recent: "Mais recentes",
-  oldest: "Mais antigas",
-  liked: "Mais curtidas"
+  recent: 'Mais recentes',
+  oldest: 'Mais antigas',
+  liked: 'Mais curtidas',
 };
 
 export function ProfilePostGrid({ posts, username, avatarUrl, canManage = false }: Props) {
-  const [sortOrder, setSortOrder] = useState<SortOrder>("recent");
+  const [sortOrder, setSortOrder] = useState<SortOrder>('recent');
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<ProfilePostItem | null>(null);
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const visiblePosts = useMemo(
     () =>
       posts.map((post) => ({ ...post, commentCount: commentCounts[post.id] ?? post.commentCount })),
-    [commentCounts, posts]
+    [commentCounts, posts],
   );
   const sortedPosts = useMemo(
     () =>
       [...visiblePosts].sort((a, b) => {
-        if (sortOrder === "liked")
+        if (sortOrder === 'liked')
           return b.likeCount - a.likeCount || Date.parse(b.createdAt) - Date.parse(a.createdAt);
         const difference = Date.parse(b.createdAt) - Date.parse(a.createdAt);
-        return sortOrder === "oldest" ? -difference : difference;
+        return sortOrder === 'oldest' ? -difference : difference;
       }),
-    [sortOrder, visiblePosts]
+    [sortOrder, visiblePosts],
   );
 
   return (
@@ -48,7 +48,7 @@ export function ProfilePostGrid({ posts, username, avatarUrl, canManage = false 
             className="inline-flex min-w-36 items-center justify-between gap-2 rounded-lg border border-of-border bg-black/10 px-3 py-2 text-sm text-of-text transition hover:bg-white/5"
           >
             {sortLabels[sortOrder]}
-            <ChevronDown className={`h-4 w-4 transition ${sortOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-4 w-4 transition ${sortOpen ? 'rotate-180' : ''}`} />
           </button>
           {sortOpen ? (
             <div
@@ -66,7 +66,7 @@ export function ProfilePostGrid({ posts, username, avatarUrl, canManage = false 
                     setSortOrder(value);
                     setSortOpen(false);
                   }}
-                  className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${sortOrder === value ? "bg-of-primary/15 text-of-primary" : "hover:bg-white/5"}`}
+                  className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${sortOrder === value ? 'bg-of-primary/15 text-of-primary' : 'hover:bg-white/5'}`}
                 >
                   {sortLabels[value]}
                 </button>

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 import {
   Bookmark,
   ChevronLeft,
@@ -9,17 +9,17 @@ import {
   MessageCircle,
   Pencil,
   Trash2,
-  X
-} from "lucide-react";
-import { useEffect, useState } from "react";
+  X,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import type { FeedPost } from "@onlyfrangos/types";
-import Link from "next/link";
+import type { FeedPost } from '@onlyfrangos/types';
+import Link from 'next/link';
 
-import { resolveAvatarUrl } from "../../../lib/avatar";
-import { apiFetch, getAuthSession } from "../../../lib/auth";
-import { PostComments } from "./post-comments";
-import { ConfirmModal } from "../../../components/ui/confirm-modal";
+import { resolveAvatarUrl } from '../../../lib/avatar';
+import { apiFetch, getAuthSession } from '../../../lib/auth';
+import { PostComments } from './post-comments';
+import { ConfirmModal } from '../../../components/ui/confirm-modal';
 
 type PostCardProps = {
   post: FeedPost;
@@ -52,19 +52,19 @@ export function PostCard({ post, onChanged }: PostCardProps) {
 
   async function togglePostLike() {
     const response = await apiFetch(`/posts/${post.id}/likes`, {
-      method: likes.liked ? "DELETE" : "POST"
+      method: likes.liked ? 'DELETE' : 'POST',
     });
     if (response.ok)
       setLikes((value) => ({
         ...value,
         liked: !value.liked,
-        count: value.count + (value.liked ? -1 : 1)
+        count: value.count + (value.liked ? -1 : 1),
       }));
   }
 
   async function removePost() {
     setDeleting(true);
-    const response = await apiFetch(`/posts/${post.id}`, { method: "DELETE" });
+    const response = await apiFetch(`/posts/${post.id}`, { method: 'DELETE' });
     if (response.ok) {
       setConfirmingDelete(false);
       onChanged?.();
@@ -72,9 +72,9 @@ export function PostCard({ post, onChanged }: PostCardProps) {
     setDeleting(false);
   }
   const avatarUrl = resolveAvatarUrl(post.author.avatarUrl, post.author.username);
-  const createdAtLabel = new Date(post.createdAt).toLocaleString("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short"
+  const createdAtLabel = new Date(post.createdAt).toLocaleString('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
   });
 
   return (
@@ -169,7 +169,7 @@ export function PostCard({ post, onChanged }: PostCardProps) {
 
       <div className="space-y-2 px-3 py-3">
         <p className="text-sm text-of-text">
-          <span className="font-semibold">@{post.author.username}</span>{" "}
+          <span className="font-semibold">@{post.author.username}</span>{' '}
           {captionExpanded || post.caption.length <= 240
             ? post.caption
             : `${post.caption.slice(0, 240).trimEnd()}…`}
@@ -180,7 +180,7 @@ export function PostCard({ post, onChanged }: PostCardProps) {
             onClick={() => setCaptionExpanded((value) => !value)}
             className="text-xs font-medium text-of-muted hover:text-of-text"
           >
-            {captionExpanded ? "Ver menos" : "Ver mais"}
+            {captionExpanded ? 'Ver menos' : 'Ver mais'}
           </button>
         ) : null}
 
@@ -190,9 +190,9 @@ export function PostCard({ post, onChanged }: PostCardProps) {
               type="button"
               onClick={() => void togglePostLike()}
               className="inline-flex items-center gap-1.5"
-              aria-label={likes.liked ? "Descurtir" : "Curtir"}
+              aria-label={likes.liked ? 'Descurtir' : 'Curtir'}
             >
-              <Heart className={`h-4 w-4 text-red-500 ${likes.liked ? "fill-current" : ""}`} />
+              <Heart className={`h-4 w-4 text-red-500 ${likes.liked ? 'fill-current' : ''}`} />
             </button>
             <button
               type="button"

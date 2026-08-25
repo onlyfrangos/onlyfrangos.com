@@ -1,6 +1,6 @@
-import type { UserSuggestion } from "@onlyfrangos/types";
-import Link from "next/link";
-import { Flame, TrendingUp, Users } from "lucide-react";
+import type { UserSuggestion } from '@onlyfrangos/types';
+import Link from 'next/link';
+import { Flame, TrendingUp, Users } from 'lucide-react';
 
 type FeedRightAsideProps = {
   suggestions?: UserSuggestion[] | null;
@@ -18,7 +18,10 @@ export function FeedRightAside({ suggestions }: FeedRightAsideProps) {
                 <Link href={`/${person.username}`} className="text-of-muted hover:text-of-text">
                   @{person.username}
                 </Link>
-                <button type="button" className="rounded-lg border border-of-border px-2 py-1 text-xs text-of-text hover:bg-white/10">
+                <button
+                  type="button"
+                  className="rounded-lg border border-of-border px-2 py-1 text-xs text-of-text hover:bg-white/10"
+                >
                   Seguir
                 </button>
               </li>

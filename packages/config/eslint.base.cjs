@@ -2,14 +2,14 @@ module.exports = {
   root: false,
   env: {
     es2022: true,
-    node: true
+    node: true,
   },
   parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module"
+    ecmaVersion: 'latest',
+    sourceType: 'module',
   },
-  extends: ["eslint:recommended"],
+  extends: ['eslint:recommended'],
   rules: {
-    "no-console": "off"
-  }
+    'no-console': 'off',
+  },
 };

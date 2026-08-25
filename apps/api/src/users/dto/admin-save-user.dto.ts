@@ -8,8 +8,8 @@ import {
   Max,
   MaxLength,
   Min,
-  MinLength
-} from "class-validator";
+  MinLength,
+} from 'class-validator';
 
 export class AdminSaveUserDto {
   @IsString()

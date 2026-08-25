@@ -1,4 +1,4 @@
-export type ProfileActionMode = "self" | "visitor";
+export type ProfileActionMode = 'self' | 'visitor';
 
 export type ProfileSummaryItem = {
   id: string;

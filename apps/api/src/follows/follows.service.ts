@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto";
-import { Injectable } from "@nestjs/common";
+import { randomUUID } from 'node:crypto';
+import { Injectable } from '@nestjs/common';
 
-import { PrismaService } from "../shared/prisma.service";
+import { PrismaService } from '../shared/prisma.service';
 
 @Injectable()
 export class FollowsService {
@@ -12,15 +12,15 @@ export class FollowsService {
       where: {
         followerId_followingId: {
           followerId,
-          followingId
-        }
+          followingId,
+        },
       },
       update: {},
       create: {
         id: randomUUID(),
         followerId,
-        followingId
-      }
+        followingId,
+      },
     });
 
     return { following: true };
@@ -30,8 +30,8 @@ export class FollowsService {
     await this.prisma.follow.deleteMany({
       where: {
         followerId,
-        followingId
-      }
+        followingId,
+      },
     });
 
     return { following: false };

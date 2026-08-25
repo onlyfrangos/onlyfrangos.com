@@ -8,11 +8,12 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-onlyfrangos}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-onlyfrangos}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-onlyfrangos} -d ${POSTGRES_DB:-onlyfrangos}"]
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-onlyfrangos} -d ${POSTGRES_DB:-onlyfrangos}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,11 +23,11 @@ services:
     container_name: onlyfrangos-redis
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
-    command: ["redis-server", "--appendonly", "yes"]
+      - '${REDIS_PORT:-6379}:6379'
+    command: ['redis-server', '--appendonly', 'yes']
     volumes:
       - redis_data:/data
-    profiles: ["cache"]
+    profiles: ['cache']
 
 volumes:
   postgres_data:

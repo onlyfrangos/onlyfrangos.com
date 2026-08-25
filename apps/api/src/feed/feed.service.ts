@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
-import { PrismaService } from "../shared/prisma.service";
+import { PrismaService } from '../shared/prisma.service';
 
 @Injectable()
 export class FeedService {
@@ -8,23 +8,23 @@ export class FeedService {
 
   async getFeed(limit = 20, cursor?: string) {
     const sorted = await this.prisma.post.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         media: {
-          orderBy: { order: "asc" }
+          orderBy: { order: 'asc' },
         },
         author: {
           include: {
-            profile: true
-          }
+            profile: true,
+          },
         },
         _count: {
           select: {
             likes: true,
-            comments: true
-          }
-        }
-      }
+            comments: true,
+          },
+        },
+      },
     });
 
     const startIndex = cursor ? sorted.findIndex((post) => post.id === cursor) + 1 : 0;
@@ -40,7 +40,7 @@ export class FeedService {
       return {
         id: post.id,
         caption: post.caption,
-        imageUrl: imageUrls[0] ?? "",
+        imageUrl: imageUrls[0] ?? '',
         imageUrls,
         createdAt: post.createdAt.toISOString(),
         likeCount: post._count.likes,
@@ -49,8 +49,8 @@ export class FeedService {
           id: author.id,
           username: author.username,
           name: profile?.name ?? author.username,
-          avatarUrl: profile?.avatarUrl ?? ""
-        }
+          avatarUrl: profile?.avatarUrl ?? '',
+        },
       };
     });
 
@@ -58,8 +58,8 @@ export class FeedService {
       items,
       pageInfo: {
         nextCursor,
-        limit
-      }
+        limit,
+      },
     };
   }
 }

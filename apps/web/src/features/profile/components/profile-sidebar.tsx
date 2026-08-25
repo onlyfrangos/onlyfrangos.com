@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Bell,
   Bookmark,
@@ -18,10 +18,10 @@ import {
   Plus,
   User2,
   Users,
-  X
-} from "lucide-react";
+  X,
+} from 'lucide-react';
 
-import { getAuthSession, logoutUser } from "../../../lib/auth";
+import { getAuthSession, logoutUser } from '../../../lib/auth';
 
 type SidebarItem = {
   href: string;
@@ -37,15 +37,15 @@ type ProfileSidebarProps = {
 };
 
 const sidebarItems: SidebarItem[] = [
-  { href: "/feed", label: "Inicio", icon: Home },
-  { href: "/users", label: "Usuários", icon: Users, adminOnly: true },
-  { href: "/gyms", label: "Academias", icon: Dumbbell },
-  { href: "#", label: "Explorar", icon: Compass },
-  { href: "#", label: "Notificacoes", icon: Bell, badge: 8 },
-  { href: "#", label: "Mensagens", icon: MessageCircle },
-  { href: "#", label: "Salvos", icon: Bookmark },
-  { href: "#", label: "Desafios", icon: Flame },
-  { href: "#", label: "Rankings", icon: Medal }
+  { href: '/feed', label: 'Inicio', icon: Home },
+  { href: '/users', label: 'Usuários', icon: Users, adminOnly: true },
+  { href: '/gyms', label: 'Academias', icon: Dumbbell },
+  { href: '#', label: 'Explorar', icon: Compass },
+  { href: '#', label: 'Notificacoes', icon: Bell, badge: 8 },
+  { href: '#', label: 'Mensagens', icon: MessageCircle },
+  { href: '#', label: 'Salvos', icon: Bookmark },
+  { href: '#', label: 'Desafios', icon: Flame },
+  { href: '#', label: 'Rankings', icon: Medal },
 ];
 
 export function ProfileSidebar({ username }: ProfileSidebarProps) {
@@ -70,7 +70,7 @@ export function ProfileSidebar({ username }: ProfileSidebarProps) {
       await logoutUser();
     } finally {
       setIsMenuOpen(false);
-      router.replace("/login");
+      router.replace('/login');
       router.refresh();
     }
   }
@@ -101,11 +101,11 @@ export function ProfileSidebar({ username }: ProfileSidebarProps) {
                 key={item.label}
                 href={item.href}
                 className={[
-                  "flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm transition",
+                  'flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm transition',
                   pathname.startsWith(item.href)
-                    ? "border-red-500/30 bg-red-500/10 text-of-text"
-                    : "border-transparent text-of-muted hover:border-of-border hover:bg-of-surface/70 hover:text-of-text"
-                ].join(" ")}
+                    ? 'border-red-500/30 bg-red-500/10 text-of-text'
+                    : 'border-transparent text-of-muted hover:border-of-border hover:bg-of-surface/70 hover:text-of-text',
+                ].join(' ')}
               >
                 <span className="flex items-center gap-2.5">
                   <Icon className="h-4 w-4" />
@@ -139,7 +139,7 @@ export function ProfileSidebar({ username }: ProfileSidebarProps) {
               className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-red-400 transition hover:bg-white/5 disabled:cursor-wait disabled:opacity-60"
             >
               <LogOut className="h-4 w-4" />
-              {isLoggingOut ? "Saindo..." : "Sair"}
+              {isLoggingOut ? 'Saindo...' : 'Sair'}
             </button>
           </div>
         ) : null}
@@ -193,7 +193,7 @@ export function ProfileMobileNavigation({ username }: ProfileSidebarProps) {
       await logoutUser();
     } finally {
       setIsOpen(false);
-      router.replace("/login");
+      router.replace('/login');
       router.refresh();
     }
   }
@@ -272,7 +272,7 @@ export function ProfileMobileNavigation({ username }: ProfileSidebarProps) {
                 className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-red-400 hover:bg-white/5 disabled:cursor-wait disabled:opacity-60"
               >
                 <LogOut className="h-4 w-4" />
-                {isLoggingOut ? "Saindo..." : "Sair"}
+                {isLoggingOut ? 'Saindo...' : 'Sair'}
               </button>
             </div>
           </aside>

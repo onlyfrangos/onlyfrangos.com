@@ -32,11 +32,11 @@ Docker
 
 Antes de começar, tenha instalado:
 
-* Node.js
-* pnpm
-* Docker
-* Docker Compose
-* Git
+- Node.js
+- pnpm
+- Docker
+- Docker Compose
+- Git
 
 Clone o repositório:
 
@@ -90,23 +90,23 @@ git push origin feat/my-feature
 
 Além de código, você pode contribuir:
 
-* reportando bugs;
-* sugerindo funcionalidades;
-* melhorando documentação;
-* criando testes;
-* discutindo arquitetura;
-* melhorando acessibilidade;
-* ajudando com UI/UX.
+- reportando bugs;
+- sugerindo funcionalidades;
+- melhorando documentação;
+- criando testes;
+- discutindo arquitetura;
+- melhorando acessibilidade;
+- ajudando com UI/UX.
 
 ## Encontrou um problema?
 
 Abra uma **Issue** descrevendo:
 
-* o comportamento encontrado;
-* o comportamento esperado;
-* passos para reproduzir;
-* ambiente utilizado;
-* screenshots ou logs, quando relevantes.
+- o comportamento encontrado;
+- o comportamento esperado;
+- passos para reproduzir;
+- ambiente utilizado;
+- screenshots ou logs, quando relevantes.
 
 Para vulnerabilidades de segurança, **não publique detalhes sensíveis em uma Issue pública**. Consulte a política de segurança do projeto.
 

@@ -10,7 +10,7 @@ export type AuthSession = {
   user: AuthUser;
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api/v1";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001/api/v1';
 let inMemorySession: AuthSession | null = null;
 
 export function saveAuthSession(session: AuthSession) {
@@ -34,8 +34,8 @@ export function updateAuthUser(user: AuthUser) {
 export async function logoutUser() {
   try {
     await fetch(`${baseUrl}/auth/logout`, {
-      method: "POST",
-      credentials: "include"
+      method: 'POST',
+      credentials: 'include',
     });
   } finally {
     clearAuthSession();
@@ -44,15 +44,15 @@ export async function logoutUser() {
 
 export async function loginUser(payload: { email: string; password: string }) {
   const response = await fetch(`${baseUrl}/auth/login`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(payload)
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(data?.message ?? "Falha ao fazer login");
+    throw new Error(data?.message ?? 'Falha ao fazer login');
   }
 
   const session = (await response.json()) as AuthSession;
@@ -62,11 +62,11 @@ export async function loginUser(payload: { email: string; password: string }) {
 
 export async function checkUsernameAvailability(username: string) {
   const response = await fetch(
-    `${baseUrl}/auth/username-availability?username=${encodeURIComponent(username)}`
+    `${baseUrl}/auth/username-availability?username=${encodeURIComponent(username)}`,
   );
 
   if (!response.ok) {
-    throw new Error("Não foi possível verificar o nome de usuário");
+    throw new Error('Não foi possível verificar o nome de usuário');
   }
 
   return (await response.json()) as { username: string; available: boolean };
@@ -81,15 +81,15 @@ export async function registerUser(payload: {
   cityId: number;
 }) {
   const response = await fetch(`${baseUrl}/auth/register`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(payload)
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(data?.message ?? "Falha ao criar conta");
+    throw new Error(data?.message ?? 'Falha ao criar conta');
   }
 
   const session = (await response.json()) as AuthSession;
@@ -99,8 +99,8 @@ export async function registerUser(payload: {
 
 export async function refreshAuthSession() {
   const response = await fetch(`${baseUrl}/auth/refresh`, {
-    method: "POST",
-    credentials: "include"
+    method: 'POST',
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -124,7 +124,7 @@ export async function refreshAuthSession() {
 
   const nextSession = {
     accessToken: payload.accessToken,
-    user
+    user,
   };
 
   saveAuthSession(nextSession);
@@ -136,13 +136,13 @@ export async function apiFetch(input: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers || {});
 
   if (session?.accessToken) {
-    headers.set("Authorization", `Bearer ${session.accessToken}`);
+    headers.set('Authorization', `Bearer ${session.accessToken}`);
   }
 
-  const response = await fetch(`${baseUrl}${input.startsWith("/") ? input : `/${input}`}`, {
+  const response = await fetch(`${baseUrl}${input.startsWith('/') ? input : `/${input}`}`, {
     ...init,
-    credentials: "include",
-    headers
+    credentials: 'include',
+    headers,
   });
 
   if (response.status !== 401) {
@@ -151,15 +151,15 @@ export async function apiFetch(input: string, init: RequestInit = {}) {
 
   const refreshedSession = await refreshAuthSession();
   if (!refreshedSession) {
-    throw new Error("Sessão expirada");
+    throw new Error('Sessão expirada');
   }
 
   const retryHeaders = new Headers(init.headers || {});
-  retryHeaders.set("Authorization", `Bearer ${refreshedSession.accessToken}`);
+  retryHeaders.set('Authorization', `Bearer ${refreshedSession.accessToken}`);
 
-  return fetch(`${baseUrl}${input.startsWith("/") ? input : `/${input}`}`, {
+  return fetch(`${baseUrl}${input.startsWith('/') ? input : `/${input}`}`, {
     ...init,
-    credentials: "include",
-    headers: retryHeaders
+    credentials: 'include',
+    headers: retryHeaders,
   });
 }

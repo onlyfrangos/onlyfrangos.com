@@ -95,5 +95,13 @@ export default tseslint.config(
       'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
+  {
+    files: ['apps/api/**/*.ts'],
+    rules: {
+      // NestJS uses runtime imports to emit dependency-injection metadata. Converting providers
+      // to `import type` makes their design:paramtypes metadata become the generic Function token.
+      '@typescript-eslint/consistent-type-imports': 'off',
+    },
+  },
   prettier,
 );

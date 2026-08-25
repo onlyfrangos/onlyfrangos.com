@@ -1,17 +1,17 @@
-import type { UserPost, UserProfile } from "@onlyfrangos/types";
+import type { UserPost, UserProfile } from '@onlyfrangos/types';
 
-import { AppShell } from "../../../components/layout/app-shell";
-import { resolveAvatarUrl } from "../../../lib/avatar";
-import { sdk } from "../../../lib/sdk";
+import { AppShell } from '../../../components/layout/app-shell';
+import { resolveAvatarUrl } from '../../../lib/avatar';
+import { sdk } from '../../../lib/sdk';
 
-import type { ProfileViewData } from "../types";
+import type { ProfileViewData } from '../types';
 
-import { ProfileFitnessDashboard } from "./profile-fitness-dashboard";
-import { ProfileHeader } from "./profile-header";
-import { ProfilePostGrid } from "./profile-post-grid";
-import { ProfileMobileNavigation, ProfileSidebar } from "./profile-sidebar";
-import { ProfileTabs } from "./profile-tabs";
-import { ProfileTopBar } from "./profile-top-bar";
+import { ProfileFitnessDashboard } from './profile-fitness-dashboard';
+import { ProfileHeader } from './profile-header';
+import { ProfilePostGrid } from './profile-post-grid';
+import { ProfileMobileNavigation, ProfileSidebar } from './profile-sidebar';
+import { ProfileTabs } from './profile-tabs';
+import { ProfileTopBar } from './profile-top-bar';
 
 type ProfilePageProps = {
   username: string;
@@ -21,7 +21,7 @@ async function loadProfile(username: string): Promise<ProfileViewData | null> {
   try {
     const [profile, posts] = await Promise.all([
       sdk.getUserByUsername(username),
-      sdk.getUserPosts(username)
+      sdk.getUserPosts(username),
     ]);
 
     return {
@@ -38,39 +38,39 @@ async function loadProfile(username: string): Promise<ProfileViewData | null> {
       postsCount: formatCompactCount(profile.postCount),
       followersCount: formatCompactCount(profile.followersCount),
       followingCount: formatCompactCount(profile.followingCount),
-      actionMode: "visitor",
+      actionMode: 'visitor',
       posts: buildPosts(posts, profile),
-      tabs: [{ id: "posts", label: "Publicações" }],
+      tabs: [{ id: 'posts', label: 'Publicações' }],
       physicalSummary: [
         profile.profile.fitnessGoal
-          ? { id: "goal", label: "Objetivo", value: profile.profile.fitnessGoal }
+          ? { id: 'goal', label: 'Objetivo', value: profile.profile.fitnessGoal }
           : null,
         profile.profile.physicalInfo?.weight
-          ? { id: "weight", label: "Peso", value: profile.profile.physicalInfo.weight }
+          ? { id: 'weight', label: 'Peso', value: profile.profile.physicalInfo.weight }
           : null,
         profile.profile.physicalInfo?.bodyFat
           ? {
-              id: "bodyFat",
-              label: "Gordura corporal",
-              value: profile.profile.physicalInfo.bodyFat
+              id: 'bodyFat',
+              label: 'Gordura corporal',
+              value: profile.profile.physicalInfo.bodyFat,
             }
           : null,
         profile.profile.physicalInfo?.arm
-          ? { id: "arm", label: "Braço", value: profile.profile.physicalInfo.arm }
-          : null
+          ? { id: 'arm', label: 'Braço', value: profile.profile.physicalInfo.arm }
+          : null,
       ].filter((item): item is { id: string; label: string; value: string } => Boolean(item)),
       gymCard: profile.profile.gym
         ? {
             name: profile.profile.gym,
-            addressLine1: profile.profile.city ?? "",
-            addressLine2: "",
-            memberCountLabel: "",
-            logoUrl: profile.profile.gymImageUrl ?? "",
+            addressLine1: profile.profile.city ?? '',
+            addressLine2: '',
+            memberCountLabel: '',
+            logoUrl: profile.profile.gymImageUrl ?? '',
             members: [],
-            ctaLabel: "Ver academia",
-            ctaHref: profile.profile.gymId ? `/gyms/${profile.profile.gymId}` : undefined
+            ctaLabel: 'Ver academia',
+            ctaHref: profile.profile.gymId ? `/gyms/${profile.profile.gymId}` : undefined,
           }
-        : undefined
+        : undefined,
     };
   } catch {
     return null;
@@ -110,10 +110,10 @@ export async function ProfilePage({ username }: ProfilePageProps) {
         </div>
       }
       mobileNavItems={[
-        { href: "/feed", label: "Inicio" },
-        { href: "/profile", label: "Perfil" },
-        { href: "#", label: "Explorar" },
-        { href: "#", label: "Alertas" }
+        { href: '/feed', label: 'Inicio' },
+        { href: '/profile', label: 'Perfil' },
+        { href: '#', label: 'Explorar' },
+        { href: '#', label: 'Alertas' },
       ]}
     >
       <ProfileTopBar />
@@ -153,9 +153,9 @@ export async function ProfilePage({ username }: ProfilePageProps) {
 }
 
 function formatCompactCount(value: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    notation: "compact",
-    maximumFractionDigits: 1
+  return new Intl.NumberFormat('pt-BR', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
   }).format(value);
 }
 
@@ -169,7 +169,7 @@ function buildPosts(posts: UserPost[], profile: UserProfile) {
     createdAt: post.createdAt,
     likeCount: post.likeCount,
     commentCount: post.commentCount,
-    hashtags: [profile.username]
+    hashtags: [profile.username],
   }));
 }
 
@@ -179,15 +179,15 @@ function formatJoinedLabel(value: string): string | undefined {
     return undefined;
   }
 
-  const joinedAt = date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const joinedAt = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   return `Entrou em ${joinedAt}`;
 }
 
 function formatDateLabel(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Recente";
+    return 'Recente';
   }
 
-  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }

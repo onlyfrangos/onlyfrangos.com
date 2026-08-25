@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import type { UserPost, UserProfile } from "@onlyfrangos/types";
-import { CalendarDays, Dumbbell, Mail, MapPin, Target, UserRound } from "lucide-react";
-import Image from "next/image";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import type { UserPost, UserProfile } from '@onlyfrangos/types';
+import { CalendarDays, Dumbbell, Mail, MapPin, Target, UserRound } from 'lucide-react';
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-import { AppShell } from "../../../components/layout/app-shell";
-import { CustomSelect } from "../../../components/ui/custom-select";
-import { apiFetch, updateAuthUser } from "../../../lib/auth";
-import { resolveAvatarUrl } from "../../../lib/avatar";
-import { LocationSelects } from "../../locations/location-selects";
+import { AppShell } from '../../../components/layout/app-shell';
+import { CustomSelect } from '../../../components/ui/custom-select';
+import { apiFetch, updateAuthUser } from '../../../lib/auth';
+import { resolveAvatarUrl } from '../../../lib/avatar';
+import { LocationSelects } from '../../locations/location-selects';
 
-import { ProfileHeader } from "./profile-header";
-import { ProfileMobileNavigation, ProfileSidebar } from "./profile-sidebar";
-import { ProfilePostGrid } from "./profile-post-grid";
-import { ProfileTabs } from "./profile-tabs";
-import { ProfileTopBar } from "./profile-top-bar";
+import { ProfileHeader } from './profile-header';
+import { ProfileMobileNavigation, ProfileSidebar } from './profile-sidebar';
+import { ProfilePostGrid } from './profile-post-grid';
+import { ProfileTabs } from './profile-tabs';
+import { ProfileTopBar } from './profile-top-bar';
 
 type OwnProfile = UserProfile & {
   email: string;
   isAdmin: boolean;
-  profile: UserProfile["profile"] & {
+  profile: UserProfile['profile'] & {
     age: number | null;
     cityId: number | null;
     stateId: number | null;
@@ -56,7 +56,7 @@ type EditForm = {
 
 export function OwnProfilePage() {
   const searchParams = useSearchParams();
-  const shouldOpenEditor = searchParams.get("edit") === "1";
+  const shouldOpenEditor = searchParams.get('edit') === '1';
   const [profile, setProfile] = useState<OwnProfile | null>(null);
   const [posts, setPosts] = useState<UserPost[]>([]);
   const [editing, setEditing] = useState(false);
@@ -73,11 +73,11 @@ export function OwnProfilePage() {
 
     async function load() {
       try {
-        const profileResponse = await apiFetch("/users/me");
-        if (!profileResponse.ok) throw new Error("Não foi possível carregar seu perfil");
+        const profileResponse = await apiFetch('/users/me');
+        if (!profileResponse.ok) throw new Error('Não foi possível carregar seu perfil');
         const nextProfile = (await profileResponse.json()) as OwnProfile;
         const postsResponse = await apiFetch(
-          `/users/${encodeURIComponent(nextProfile.username)}/posts`
+          `/users/${encodeURIComponent(nextProfile.username)}/posts`,
         );
         const nextPosts = postsResponse.ok ? ((await postsResponse.json()) as UserPost[]) : [];
 
@@ -94,7 +94,7 @@ export function OwnProfilePage() {
           setError(
             requestError instanceof Error
               ? requestError.message
-              : "Não foi possível carregar seu perfil"
+              : 'Não foi possível carregar seu perfil',
           );
       } finally {
         if (active) setLoading(false);
@@ -153,9 +153,9 @@ export function OwnProfilePage() {
     setError(null);
 
     try {
-      const response = await apiFetch("/users/me", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
+      const response = await apiFetch('/users/me', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
           username: form.username,
@@ -170,8 +170,8 @@ export function OwnProfilePage() {
           arm: form.arm,
           showGym: form.showGym,
           showCity: form.showCity,
-          showPhysicalInfo: form.showPhysicalInfo
-        })
+          showPhysicalInfo: form.showPhysicalInfo,
+        }),
       });
 
       if (!response.ok) {
@@ -179,20 +179,20 @@ export function OwnProfilePage() {
           message?: string | string[];
         } | null;
         const message = Array.isArray(payload?.message) ? payload.message[0] : payload?.message;
-        throw new Error(message ?? "Não foi possível salvar o perfil");
+        throw new Error(message ?? 'Não foi possível salvar o perfil');
       }
 
       let updatedProfile = (await response.json()) as OwnProfile;
 
       if (avatarFile) {
         const avatarData = new FormData();
-        avatarData.append("avatar", avatarFile);
-        const avatarResponse = await apiFetch("/users/me/avatar", {
-          method: "POST",
-          body: avatarData
+        avatarData.append('avatar', avatarFile);
+        const avatarResponse = await apiFetch('/users/me/avatar', {
+          method: 'POST',
+          body: avatarData,
         });
         if (!avatarResponse.ok)
-          throw new Error("Os dados foram salvos, mas não foi possível enviar a foto");
+          throw new Error('Os dados foram salvos, mas não foi possível enviar a foto');
         const avatar = (await avatarResponse.json()) as { avatarUrl: string };
         updatedProfile = { ...updatedProfile, avatarUrl: avatar.avatarUrl };
       }
@@ -201,18 +201,18 @@ export function OwnProfilePage() {
         id: updatedProfile.id,
         username: updatedProfile.username,
         email: updatedProfile.email,
-        isAdmin: updatedProfile.isAdmin
+        isAdmin: updatedProfile.isAdmin,
       });
       setEditing(false);
     } catch (requestError) {
       setError(
-        requestError instanceof Error ? requestError.message : "Não foi possível salvar o perfil"
+        requestError instanceof Error ? requestError.message : 'Não foi possível salvar o perfil',
       );
     } finally {
       setSaving(false);
 
       const url = new URL(window.location.href);
-      url.searchParams.delete("edit");
+      url.searchParams.delete('edit');
 
       window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
     }
@@ -229,7 +229,7 @@ export function OwnProfilePage() {
   if (!profile) {
     return (
       <div className="mx-auto mt-10 max-w-lg rounded-2xl border border-of-border bg-of-surface p-8 text-center text-red-400">
-        {error ?? "Não foi possível carregar seu perfil."}
+        {error ?? 'Não foi possível carregar seu perfil.'}
       </div>
     );
   }
@@ -243,7 +243,7 @@ export function OwnProfilePage() {
     createdAt: post.createdAt,
     likeCount: post.likeCount,
     commentCount: post.commentCount,
-    hashtags: [profile.username]
+    hashtags: [profile.username],
   }));
 
   return (
@@ -258,7 +258,7 @@ export function OwnProfilePage() {
             <ProfileDetail
               icon={UserRound}
               label="Idade"
-              value={profile.profile.age ? `${profile.profile.age} anos` : "Não informada"}
+              value={profile.profile.age ? `${profile.profile.age} anos` : 'Não informada'}
             />
             <ProfileDetail
               icon={CalendarDays}
@@ -268,18 +268,18 @@ export function OwnProfilePage() {
             <ProfileDetail
               icon={MapPin}
               label="Cidade"
-              value={profile.profile.city ?? "Não informada"}
+              value={profile.profile.city ?? 'Não informada'}
             />
             <ProfileDetail
               icon={Dumbbell}
               label="Academia"
-              value={profile.profile.gym ?? "Não informada"}
+              value={profile.profile.gym ?? 'Não informada'}
               href={profile.profile.gymId ? `/gyms/${profile.profile.gymId}` : undefined}
             />
             <ProfileDetail
               icon={Target}
               label="Objetivo"
-              value={profile.profile.fitnessGoal ?? "Não informado"}
+              value={profile.profile.fitnessGoal ?? 'Não informado'}
             />
           </dl>
         </aside>
@@ -310,7 +310,7 @@ export function OwnProfilePage() {
           <ProfileDetail
             icon={UserRound}
             label="Idade"
-            value={profile.profile.age ? `${profile.profile.age} anos` : "Não informada"}
+            value={profile.profile.age ? `${profile.profile.age} anos` : 'Não informada'}
           />
           <ProfileDetail
             icon={CalendarDays}
@@ -320,12 +320,12 @@ export function OwnProfilePage() {
           <ProfileDetail
             icon={MapPin}
             label="Cidade"
-            value={profile.profile.city ?? "Não informada"}
+            value={profile.profile.city ?? 'Não informada'}
           />
         </dl>
       </section>
 
-      <ProfileTabs items={[{ id: "posts", label: "Publicações" }]} activeTab="posts" />
+      <ProfileTabs items={[{ id: 'posts', label: 'Publicações' }]} activeTab="posts" />
       <ProfilePostGrid
         posts={postItems}
         username={profile.username}
@@ -410,7 +410,7 @@ export function OwnProfilePage() {
                   onChange={(event) =>
                     setForm({
                       ...form,
-                      username: event.target.value.toLowerCase().replace(/[^a-z0-9._]/g, "")
+                      username: event.target.value.toLowerCase().replace(/[^a-z0-9._]/g, ''),
                     })
                   }
                   minLength={3}
@@ -446,8 +446,8 @@ export function OwnProfilePage() {
               <LocationSelects
                 stateId={form.stateId}
                 cityId={form.cityId}
-                onStateChange={(stateId) => setForm({ ...form, stateId, cityId: "", gymId: "" })}
-                onCityChange={(cityId) => setForm({ ...form, cityId, gymId: "" })}
+                onStateChange={(stateId) => setForm({ ...form, stateId, cityId: '', gymId: '' })}
+                onCityChange={(cityId) => setForm({ ...form, cityId, gymId: '' })}
                 className={inputClassName}
               />
               <EditField label="Academia" className="sm:col-span-2">
@@ -455,12 +455,12 @@ export function OwnProfilePage() {
                   value={form.gymId}
                   onChange={(gymId) => setForm({ ...form, gymId })}
                   options={[
-                    { value: "", label: "Nenhuma academia" },
+                    { value: '', label: 'Nenhuma academia' },
                     ...gyms.map((gym) => ({
                       value: gym.id,
                       label: `${gym.name} — ${gym.city}/${gym.state}`,
-                      imageUrl: gym.imageUrl
-                    }))
+                      imageUrl: gym.imageUrl,
+                    })),
                   ]}
                   placeholder="Nenhuma academia"
                   ariaLabel="Academia"
@@ -563,7 +563,7 @@ export function OwnProfilePage() {
                 disabled={saving}
                 className="rounded-xl bg-of-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-of-primaryHover disabled:opacity-60"
               >
-                {saving ? "Salvando..." : "Salvar alterações"}
+                {saving ? 'Salvando...' : 'Salvar alterações'}
               </button>
             </div>
           </form>
@@ -574,32 +574,32 @@ export function OwnProfilePage() {
 }
 
 const inputClassName =
-  "w-full rounded-xl border border-of-border bg-black/20 px-3 py-2.5 text-sm text-of-text outline-none transition focus:border-of-primary focus:ring-2 focus:ring-of-primary/20";
+  'w-full rounded-xl border border-of-border bg-black/20 px-3 py-2.5 text-sm text-of-text outline-none transition focus:border-of-primary focus:ring-2 focus:ring-of-primary/20';
 
 function createEditForm(profile: OwnProfile): EditForm {
   return {
     name: profile.name,
     username: profile.username,
     email: profile.email,
-    age: profile.profile.age?.toString() ?? "",
-    stateId: profile.profile.stateId?.toString() ?? "",
-    cityId: profile.profile.cityId?.toString() ?? "",
+    age: profile.profile.age?.toString() ?? '',
+    stateId: profile.profile.stateId?.toString() ?? '',
+    cityId: profile.profile.cityId?.toString() ?? '',
     bio: profile.bio,
-    gymId: profile.profile.gymId ?? "",
-    fitnessGoal: profile.profile.fitnessGoal ?? "",
-    weight: profile.profile.physicalInfo?.weight ?? "",
-    bodyFat: profile.profile.physicalInfo?.bodyFat ?? "",
-    arm: profile.profile.physicalInfo?.arm ?? "",
+    gymId: profile.profile.gymId ?? '',
+    fitnessGoal: profile.profile.fitnessGoal ?? '',
+    weight: profile.profile.physicalInfo?.weight ?? '',
+    bodyFat: profile.profile.physicalInfo?.bodyFat ?? '',
+    arm: profile.profile.physicalInfo?.arm ?? '',
     showGym: profile.profile.showGym,
     showCity: profile.profile.showCity,
-    showPhysicalInfo: profile.profile.showPhysicalInfo
+    showPhysicalInfo: profile.profile.showPhysicalInfo,
   };
 }
 
 function EditField({
   label,
   className,
-  children
+  children,
 }: {
   label: string;
   className?: string;
@@ -616,7 +616,7 @@ function EditField({
 function Checkbox({
   label,
   checked,
-  onChange
+  onChange,
 }: {
   label: string;
   checked: boolean;
@@ -639,7 +639,7 @@ function ProfileDetail({
   icon: Icon,
   label,
   value,
-  href
+  href,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -666,18 +666,18 @@ function ProfileDetail({
 }
 
 function formatCompactCount(value: number) {
-  return new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(
-    value
+  return new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 }).format(
+    value,
   );
 }
 
 function formatJoinedDate(value: string) {
-  return new Date(value).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  return new Date(value).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 }
 
 function formatDateLabel(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
-    ? "Recente"
-    : date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+    ? 'Recente'
+    : date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }

@@ -8,6 +8,7 @@ node_modules
 dist
 coverage
 *.log
+*.tsbuildinfo
 .DS_Store
 prisma/dev.db
 todo.md

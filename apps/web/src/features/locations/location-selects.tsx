@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-import { apiFetch } from "../../lib/auth";
-import { CustomSelect } from "../../components/ui/custom-select";
+import { apiFetch } from '../../lib/auth';
+import { CustomSelect } from '../../components/ui/custom-select';
 
 export type StateOption = { codigoUf: number; uf: string; nome: string };
 export type CityOption = { codigoIbge: number; nome: string; codigoUf: number };
@@ -21,13 +21,13 @@ export function LocationSelects({
   cityId,
   onStateChange,
   onCityChange,
-  className
+  className,
 }: Props) {
   const [states, setStates] = useState<StateOption[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
 
   useEffect(() => {
-    void apiFetch("/locations/states")
+    void apiFetch('/locations/states')
       .then((response) => (response.ok ? response.json() : []))
       .then((items) => setStates(items as StateOption[]));
   }, []);
@@ -56,11 +56,11 @@ export function LocationSelects({
           value={stateId}
           onChange={onStateChange}
           options={[
-            { value: "", label: "Não informar" },
+            { value: '', label: 'Não informar' },
             ...states.map((state) => ({
               value: String(state.codigoUf),
-              label: `${state.nome} (${state.uf})`
-            }))
+              label: `${state.nome} (${state.uf})`,
+            })),
           ]}
           placeholder="Selecione o estado"
           ariaLabel="Estado"
@@ -73,8 +73,8 @@ export function LocationSelects({
           value={cityId}
           onChange={onCityChange}
           options={[
-            { value: "", label: "Não informar" },
-            ...cities.map((city) => ({ value: String(city.codigoIbge), label: city.nome }))
+            { value: '', label: 'Não informar' },
+            ...cities.map((city) => ({ value: String(city.codigoIbge), label: city.nome })),
           ]}
           placeholder="Selecione a cidade"
           ariaLabel="Cidade"

@@ -1,27 +1,31 @@
-import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
-import { randomUUID } from "node:crypto";
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'node:crypto';
 
-import { PrismaService } from "../shared/prisma.service";
-import { isReservedUsername, USERNAME_ALREADY_EXISTS_MESSAGE, USERNAME_UNAVAILABLE_MESSAGE } from "./username-policy";
+import { PrismaService } from '../shared/prisma.service';
+import {
+  isReservedUsername,
+  USERNAME_ALREADY_EXISTS_MESSAGE,
+  USERNAME_UNAVAILABLE_MESSAGE,
+} from './username-policy';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   private signAccessToken(user: { id: string; email: string; username: string }) {
     return this.jwtService.sign(
       { sub: user.id, email: user.email, username: user.username },
-      { expiresIn: "15m" }
+      { expiresIn: '15m' },
     );
   }
 
   private signRefreshToken(user: { id: string; email: string; username: string }) {
-    return this.jwtService.sign({ sub: user.id, type: "refresh" }, { expiresIn: "7d" });
+    return this.jwtService.sign({ sub: user.id, type: 'refresh' }, { expiresIn: '7d' });
   }
 
   async isUsernameAvailable(username: string) {
@@ -33,7 +37,7 @@ export class AuthService {
 
     const existingUser = await this.prisma.user.findUnique({
       where: { username: normalizedUsername },
-      select: { id: true }
+      select: { id: true },
     });
 
     return { username: normalizedUsername, available: !existingUser };
@@ -57,8 +61,8 @@ export class AuthService {
 
     const existingUser = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: normalizedEmail }, { username: normalizedUsername }]
-      }
+        OR: [{ email: normalizedEmail }, { username: normalizedUsername }],
+      },
     });
 
     if (existingUser) {
@@ -79,25 +83,25 @@ export class AuthService {
             name: normalizedFullName,
             age: body.age,
             cityId: body.cityId,
-            bio: "",
+            bio: '',
             showGym: true,
             showCity: true,
-            showPhysicalInfo: true
-          }
-        }
+            showPhysicalInfo: true,
+          },
+        },
       },
       select: {
         id: true,
         email: true,
         username: true,
-        isAdmin: true
-      }
+        isAdmin: true,
+      },
     });
 
     return {
       user,
       accessToken: this.signAccessToken(user),
-      refreshToken: this.signRefreshToken(user)
+      refreshToken: this.signRefreshToken(user),
     };
   }
 
@@ -111,18 +115,18 @@ export class AuthService {
         email: true,
         username: true,
         passwordHash: true,
-        isAdmin: true
-      }
+        isAdmin: true,
+      },
     });
 
     if (!user) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const passwordMatches = await bcrypt.compare(body.password, user.passwordHash);
 
     if (!passwordMatches) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const { passwordHash: _passwordHash, ...safeUser } = user;
@@ -130,24 +134,24 @@ export class AuthService {
     return {
       user: safeUser,
       accessToken: this.signAccessToken(safeUser),
-      refreshToken: this.signRefreshToken(safeUser)
+      refreshToken: this.signRefreshToken(safeUser),
     };
   }
 
   async impersonate(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, username: true, isAdmin: true }
+      select: { id: true, email: true, username: true, isAdmin: true },
     });
 
     if (!user) {
-      throw new UnauthorizedException("Usuário não encontrado");
+      throw new UnauthorizedException('Usuário não encontrado');
     }
 
     return {
       user,
       accessToken: this.signAccessToken(user),
-      refreshToken: this.signRefreshToken(user)
+      refreshToken: this.signRefreshToken(user),
     };
   }
 
@@ -155,25 +159,25 @@ export class AuthService {
     try {
       const payload = this.jwtService.verify<{ sub: string; type?: string }>(refreshToken);
 
-      if (payload.type !== "refresh") {
-        throw new UnauthorizedException("Invalid refresh token");
+      if (payload.type !== 'refresh') {
+        throw new UnauthorizedException('Invalid refresh token');
       }
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        select: { id: true, email: true, username: true, isAdmin: true }
+        select: { id: true, email: true, username: true, isAdmin: true },
       });
 
       if (!user) {
-        throw new UnauthorizedException("Invalid refresh token");
+        throw new UnauthorizedException('Invalid refresh token');
       }
 
       return {
         user,
-        accessToken: this.signAccessToken(user)
+        accessToken: this.signAccessToken(user),
       };
     } catch {
-      throw new UnauthorizedException("Invalid refresh token");
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }

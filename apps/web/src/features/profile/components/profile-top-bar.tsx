@@ -1,5 +1,5 @@
-import { Bell, Plus, Search } from "lucide-react";
-import Link from "next/link";
+import { Bell, Plus, Search } from 'lucide-react';
+import Link from 'next/link';
 
 export function ProfileTopBar() {
   return (
@@ -24,9 +24,15 @@ export function ProfileTopBar() {
             Publicar
           </Link>
 
-          <button type="button" aria-label="Notificacoes" className="relative rounded-lg border border-of-border p-2 text-of-muted hover:text-of-text">
+          <button
+            type="button"
+            aria-label="Notificacoes"
+            className="relative rounded-lg border border-of-border p-2 text-of-muted hover:text-of-text"
+          >
             <Bell className="h-4 w-4" />
-            <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-red-600 text-[10px] font-semibold text-white">8</span>
+            <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-red-600 text-[10px] font-semibold text-white">
+              8
+            </span>
           </button>
         </div>
       </div>

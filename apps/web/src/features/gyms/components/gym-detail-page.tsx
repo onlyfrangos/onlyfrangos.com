@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 import {
   ArrowLeft,
   CalendarDays,
@@ -11,15 +11,15 @@ import {
   MapPin,
   Pencil,
   Target,
-  Users
-} from "lucide-react";
-import { useEffect, useState } from "react";
+  Users,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import { AppShell } from "../../../components/layout/app-shell";
-import { apiFetch, getAuthSession } from "../../../lib/auth";
-import { resolveAvatarUrl } from "../../../lib/avatar";
-import { ProfileMobileNavigation, ProfileSidebar } from "../../profile/components/profile-sidebar";
-import type { Gym, GymMembersPage } from "../types";
+import { AppShell } from '../../../components/layout/app-shell';
+import { apiFetch, getAuthSession } from '../../../lib/auth';
+import { resolveAvatarUrl } from '../../../lib/avatar';
+import { ProfileMobileNavigation, ProfileSidebar } from '../../profile/components/profile-sidebar';
+import type { Gym, GymMembersPage } from '../types';
 
 export function GymDetailPage({ gymId }: { gymId: string }) {
   const session = getAuthSession();
@@ -28,13 +28,13 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
   const [page, setPage] = useState(1);
   const [loadingGym, setLoadingGym] = useState(true);
   const [loadingMembers, setLoadingMembers] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let active = true;
     void apiFetch(`/gyms/${gymId}`)
       .then(async (response) => {
-        if (!response.ok) throw new Error("Academia não encontrada");
+        if (!response.ok) throw new Error('Academia não encontrada');
         return response.json() as Promise<Gym>;
       })
       .then((payload) => {
@@ -45,7 +45,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
           setError(
             requestError instanceof Error
               ? requestError.message
-              : "Não foi possível carregar a academia"
+              : 'Não foi possível carregar a academia',
           );
       })
       .finally(() => {
@@ -61,7 +61,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
     setLoadingMembers(true);
     void apiFetch(`/gyms/${gymId}/members?page=${page}`)
       .then(async (response) => {
-        if (!response.ok) throw new Error("Não foi possível carregar os membros");
+        if (!response.ok) throw new Error('Não foi possível carregar os membros');
         return response.json() as Promise<GymMembersPage>;
       })
       .then((payload) => {
@@ -72,7 +72,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
           setError(
             requestError instanceof Error
               ? requestError.message
-              : "Não foi possível carregar os membros"
+              : 'Não foi possível carregar os membros',
           );
       })
       .finally(() => {
@@ -83,7 +83,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
     };
   }, [gymId, page]);
 
-  const username = session?.user.username ?? "usuario";
+  const username = session?.user.username ?? 'usuario';
   const isAdmin = Boolean(session?.user.isAdmin);
 
   return (
@@ -154,7 +154,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
                 <p className="text-xs text-of-muted">Pessoas cadastradas</p>
                 <p className="mt-1 flex items-center gap-2 font-medium">
                   <Users className="h-4 w-4 text-of-primary" />
-                  {members?.total ?? 0} {members?.total === 1 ? "membro" : "membros"}
+                  {members?.total ?? 0} {members?.total === 1 ? 'membro' : 'membros'}
                 </p>
               </div>
             </div>
@@ -245,7 +245,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
                   Anterior
                 </button>
                 <span className="text-sm text-of-muted">
-                  Página <strong className="text-of-text">{members.page}</strong> de{" "}
+                  Página <strong className="text-of-text">{members.page}</strong> de{' '}
                   {members.totalPages}
                 </span>
                 <button
@@ -267,5 +267,5 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
 }
 
 function formatYear(value: string) {
-  return new Intl.DateTimeFormat("pt-BR", { year: "numeric" }).format(new Date(value));
+  return new Intl.DateTimeFormat('pt-BR', { year: 'numeric' }).format(new Date(value));
 }

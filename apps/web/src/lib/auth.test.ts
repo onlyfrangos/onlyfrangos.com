@@ -1,54 +1,54 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { apiFetch, clearAuthSession, getAuthSession, logoutUser, saveAuthSession } from "./auth";
+import { apiFetch, clearAuthSession, getAuthSession, logoutUser, saveAuthSession } from './auth';
 
-describe("apiFetch", () => {
+describe('apiFetch', () => {
   beforeEach(() => {
     clearAuthSession();
     vi.restoreAllMocks();
   });
 
-  it("refreshes the session when the request returns 401", async () => {
+  it('refreshes the session when the request returns 401', async () => {
     saveAuthSession({
-      accessToken: "expired-token",
+      accessToken: 'expired-token',
       user: {
-        id: "user-1",
-        email: "user@example.com",
-        username: "user",
-        isAdmin: false
-      }
+        id: 'user-1',
+        email: 'user@example.com',
+        username: 'user',
+        isAdmin: false,
+      },
     });
 
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(
-        new Response(JSON.stringify({ message: "Unauthorized" }), {
+        new Response(JSON.stringify({ message: 'Unauthorized' }), {
           status: 401,
-          headers: { "content-type": "application/json" }
-        })
+          headers: { 'content-type': 'application/json' },
+        }),
       )
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
-            accessToken: "new-access-token",
-            user: { id: "user-1", email: "user@example.com", username: "user" }
+            accessToken: 'new-access-token',
+            user: { id: 'user-1', email: 'user@example.com', username: 'user' },
           }),
           {
             status: 200,
-            headers: { "content-type": "application/json" }
-          }
-        )
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
       )
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ ok: true }), {
           status: 200,
-          headers: { "content-type": "application/json" }
-        })
+          headers: { 'content-type': 'application/json' },
+        }),
       );
 
-    vi.stubGlobal("fetch", fetchMock as typeof fetch);
+    vi.stubGlobal('fetch', fetchMock as typeof fetch);
 
-    const response = await apiFetch("/profile/me", { method: "GET" });
+    const response = await apiFetch('/profile/me', { method: 'GET' });
 
     expect(response.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(3);
@@ -70,32 +70,32 @@ describe("apiFetch", () => {
       );
     };
 
-    expect(readHeader(firstCallInit.headers, "Authorization")).toBe("Bearer expired-token");
-    expect(secondCallInit.credentials).toBe("include");
-    expect(readHeader(thirdCallInit.headers, "Authorization")).toBe("Bearer new-access-token");
+    expect(readHeader(firstCallInit.headers, 'Authorization')).toBe('Bearer expired-token');
+    expect(secondCallInit.credentials).toBe('include');
+    expect(readHeader(thirdCallInit.headers, 'Authorization')).toBe('Bearer new-access-token');
   });
 });
 
-describe("logoutUser", () => {
+describe('logoutUser', () => {
   beforeEach(() => {
     clearAuthSession();
     vi.restoreAllMocks();
   });
 
-  it("clears the local session and invalidates the refresh cookie", async () => {
+  it('clears the local session and invalidates the refresh cookie', async () => {
     saveAuthSession({
-      accessToken: "access-token",
-      user: { id: "user-1", email: "user@example.com", username: "user", isAdmin: false }
+      accessToken: 'access-token',
+      user: { id: 'user-1', email: 'user@example.com', username: 'user', isAdmin: false },
     });
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }));
-    vi.stubGlobal("fetch", fetchMock as typeof fetch);
+    vi.stubGlobal('fetch', fetchMock as typeof fetch);
 
     await logoutUser();
 
     expect(getAuthSession()).toBeNull();
-    expect(fetchMock).toHaveBeenCalledWith("http://localhost:3001/api/v1/auth/logout", {
-      method: "POST",
-      credentials: "include"
+    expect(fetchMock).toHaveBeenCalledWith('http://localhost:3001/api/v1/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
     });
   });
 });

@@ -1,6 +1,6 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 
-import { PrismaService } from "../shared/prisma.service";
+import { PrismaService } from '../shared/prisma.service';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -9,13 +9,13 @@ export class AdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<{ user?: { sub?: string } }>();
     const userId = request.user?.sub;
-    if (!userId) throw new ForbiddenException("Acesso restrito a administradores");
+    if (!userId) throw new ForbiddenException('Acesso restrito a administradores');
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { isAdmin: true }
+      select: { isAdmin: true },
     });
-    if (!user?.isAdmin) throw new ForbiddenException("Acesso restrito a administradores");
+    if (!user?.isAdmin) throw new ForbiddenException('Acesso restrito a administradores');
     return true;
   }
 }

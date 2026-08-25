@@ -1,33 +1,42 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight, LogIn, Pencil, Plus, Search, ShieldCheck, Trash2 } from "lucide-react";
-import { useDeferredValue, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Image from 'next/image';
+import Link from 'next/link';
+import {
+  ChevronLeft,
+  ChevronRight,
+  LogIn,
+  Pencil,
+  Plus,
+  Search,
+  ShieldCheck,
+  Trash2,
+} from 'lucide-react';
+import { useDeferredValue, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { AppShell } from "../../../components/layout/app-shell";
-import { ConfirmModal } from "../../../components/ui/confirm-modal";
-import { apiFetch, getAuthSession, saveAuthSession, type AuthSession } from "../../../lib/auth";
-import { resolveAvatarUrl } from "../../../lib/avatar";
-import { ProfileMobileNavigation, ProfileSidebar } from "../../profile/components/profile-sidebar";
-import type { AdminUsersPage } from "../types";
+import { AppShell } from '../../../components/layout/app-shell';
+import { ConfirmModal } from '../../../components/ui/confirm-modal';
+import { apiFetch, getAuthSession, saveAuthSession, type AuthSession } from '../../../lib/auth';
+import { resolveAvatarUrl } from '../../../lib/avatar';
+import { ProfileMobileNavigation, ProfileSidebar } from '../../profile/components/profile-sidebar';
+import type { AdminUsersPage } from '../types';
 
 export function UsersPage() {
   const router = useRouter();
   const session = getAuthSession();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const [page, setPage] = useState(1);
   const [data, setData] = useState<AdminUsersPage | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    if (!session?.user.isAdmin) router.replace("/feed");
+    if (!session?.user.isAdmin) router.replace('/feed');
   }, [router, session?.user.isAdmin]);
 
   useEffect(() => {
@@ -35,21 +44,21 @@ export function UsersPage() {
     let active = true;
     setLoading(true);
     const query = new URLSearchParams({ page: String(page) });
-    if (deferredSearch.trim()) query.set("search", deferredSearch.trim());
+    if (deferredSearch.trim()) query.set('search', deferredSearch.trim());
     void apiFetch(`/users/admin/list?${query}`)
       .then(async (response) => {
-        if (!response.ok) throw new Error("Não foi possível carregar os usuários");
+        if (!response.ok) throw new Error('Não foi possível carregar os usuários');
         return response.json() as Promise<AdminUsersPage>;
       })
       .then((payload) => {
         if (active) {
           setData(payload);
-          setError("");
+          setError('');
         }
       })
       .catch((requestError) => {
         if (active)
-          setError(requestError instanceof Error ? requestError.message : "Erro ao carregar");
+          setError(requestError instanceof Error ? requestError.message : 'Erro ao carregar');
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -62,10 +71,10 @@ export function UsersPage() {
   async function remove() {
     if (!deleteTarget) return;
     setDeleting(true);
-    const response = await apiFetch(`/users/admin/${deleteTarget.id}`, { method: "DELETE" });
+    const response = await apiFetch(`/users/admin/${deleteTarget.id}`, { method: 'DELETE' });
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as { message?: string } | null;
-      setError(payload?.message ?? "Não foi possível excluir o usuário");
+      setError(payload?.message ?? 'Não foi possível excluir o usuário');
       setDeleting(false);
       return;
     }
@@ -74,9 +83,9 @@ export function UsersPage() {
         ? {
             ...current,
             items: current.items.filter((item) => item.id !== deleteTarget.id),
-            total: current.total - 1
+            total: current.total - 1,
           }
-        : current
+        : current,
     );
     setDeleting(false);
     setDeleteTarget(null);
@@ -84,28 +93,28 @@ export function UsersPage() {
 
   async function impersonate(id: string) {
     setImpersonatingId(id);
-    setError("");
+    setError('');
     try {
-      const response = await apiFetch(`/auth/admin/impersonate/${id}`, { method: "POST" });
+      const response = await apiFetch(`/auth/admin/impersonate/${id}`, { method: 'POST' });
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as { message?: string } | null;
-        throw new Error(payload?.message ?? "Não foi possível entrar como este usuário");
+        throw new Error(payload?.message ?? 'Não foi possível entrar como este usuário');
       }
       saveAuthSession((await response.json()) as AuthSession);
-      router.push("/feed");
+      router.push('/feed');
       router.refresh();
     } catch (requestError) {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "Não foi possível entrar como este usuário"
+          : 'Não foi possível entrar como este usuário',
       );
     } finally {
       setImpersonatingId(null);
     }
   }
 
-  const username = session?.user.username ?? "usuario";
+  const username = session?.user.username ?? 'usuario';
   return (
     <AppShell
       leftAside={<ProfileSidebar username={username} />}
@@ -180,7 +189,12 @@ export function UsersPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <Link href={`/${user.username}`} className="truncate font-semibold hover:text-of-primary">{user.name}</Link>
+                      <Link
+                        href={`/${user.username}`}
+                        className="truncate font-semibold hover:text-of-primary"
+                      >
+                        {user.name}
+                      </Link>
                       {user.isAdmin ? (
                         <ShieldCheck
                           className="h-4 w-4 shrink-0 text-of-primary"
@@ -188,12 +202,16 @@ export function UsersPage() {
                         />
                       ) : null}
                     </div>
-                    <Link href={`/${user.username}`} className="truncate text-xs text-of-muted">@{user.username}</Link>
-                    <p className="mt-1 block truncate text-xs text-of-muted hover:text-of-text">{user.email}</p>
+                    <Link href={`/${user.username}`} className="truncate text-xs text-of-muted">
+                      @{user.username}
+                    </Link>
+                    <p className="mt-1 block truncate text-xs text-of-muted hover:text-of-text">
+                      {user.email}
+                    </p>
                   </div>
                 </div>
                 <p className="mt-3 text-sm text-of-muted">
-                  {user.city ? `${user.city}/${user.state}` : "Cidade não informada"}
+                  {user.city ? `${user.city}/${user.state}` : 'Cidade não informada'}
                 </p>
                 <div className="mt-4 flex gap-2">
                   <Link
@@ -244,7 +262,7 @@ export function UsersPage() {
       <ConfirmModal
         open={Boolean(deleteTarget)}
         title="Excluir usuário?"
-        description={`A conta de ${deleteTarget?.name ?? "este usuário"} e todos os dados relacionados serão excluídos permanentemente.`}
+        description={`A conta de ${deleteTarget?.name ?? 'este usuário'} e todos os dados relacionados serão excluídos permanentemente.`}
         confirmLabel="Excluir usuário"
         loading={deleting}
         onClose={() => setDeleteTarget(null)}

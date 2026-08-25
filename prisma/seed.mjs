@@ -1,23 +1,23 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const seedPasswordHash = "$2b$12$iVrQJ3ccjMqwIRKB2I3oeuSSQQOAbi56UYrIAtl7D88DG9fZVYHJq";
+const seedPasswordHash = '$2b$12$iVrQJ3ccjMqwIRKB2I3oeuSSQQOAbi56UYrIAtl7D88DG9fZVYHJq';
 
 const ids = {
   users: {
-    extra: "01929f00-9f98-7c3d-8cf3-b64f3175b001",
-    fabio: "01929f00-9f98-7c3d-8cf3-b64f3175b002",
-    coach: "01929f00-9f98-7c3d-8cf3-b64f3175b003"
+    extra: '01929f00-9f98-7c3d-8cf3-b64f3175b001',
+    fabio: '01929f00-9f98-7c3d-8cf3-b64f3175b002',
+    coach: '01929f00-9f98-7c3d-8cf3-b64f3175b003',
   },
   gyms: {
-    gymx: "01929f00-9f98-7c3d-8cf3-b64f3175e001",
-    iron: "01929f00-9f98-7c3d-8cf3-b64f3175e002"
+    gymx: '01929f00-9f98-7c3d-8cf3-b64f3175e001',
+    iron: '01929f00-9f98-7c3d-8cf3-b64f3175e002',
   },
   posts: {
-    p1: "01929f00-9f98-7c3d-8cf3-b64f3175c001",
-    p2: "01929f00-9f98-7c3d-8cf3-b64f3175c002",
-    p3: "01929f00-9f98-7c3d-8cf3-b64f3175c003"
-  }
+    p1: '01929f00-9f98-7c3d-8cf3-b64f3175c001',
+    p2: '01929f00-9f98-7c3d-8cf3-b64f3175c002',
+    p3: '01929f00-9f98-7c3d-8cf3-b64f3175c003',
+  },
 };
 
 async function main() {
@@ -34,86 +34,86 @@ async function main() {
     data: [
       {
         id: ids.gyms.gymx,
-        name: "Academia X",
+        name: 'Academia X',
         cityId: 2408003,
         imageUrl:
-          "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80"
+          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
       },
       {
         id: ids.gyms.iron,
-        name: "Iron Factory",
+        name: 'Iron Factory',
         cityId: 2408102,
         imageUrl:
-          "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1200&q=80"
-      }
-    ]
+          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1200&q=80',
+      },
+    ],
   });
 
   await prisma.user.createMany({
     data: [
       {
         id: ids.users.extra,
-        email: "extra@onlyfrangos.dev",
-        username: "extrastickersbr",
+        email: 'extra@onlyfrangos.dev',
+        username: 'extrastickersbr',
         passwordHash: seedPasswordHash,
-        isAdmin: true
+        isAdmin: true,
       },
       {
         id: ids.users.fabio,
-        email: "fabio@onlyfrangos.dev",
-        username: "fabiocut",
-        passwordHash: seedPasswordHash
+        email: 'fabio@onlyfrangos.dev',
+        username: 'fabiocut',
+        passwordHash: seedPasswordHash,
       },
       {
         id: ids.users.coach,
-        email: "coach@onlyfrangos.dev",
-        username: "coachfrango",
-        passwordHash: seedPasswordHash
-      }
-    ]
+        email: 'coach@onlyfrangos.dev',
+        username: 'coachfrango',
+        passwordHash: seedPasswordHash,
+      },
+    ],
   });
 
   await prisma.profile.createMany({
     data: [
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175f001",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175f001',
         userId: ids.users.extra,
-        name: "Extra Stickers BR",
-        bio: "Figurinhas e treino sem drama.",
-        avatarUrl: "/avatars/extrastickersbr.jpg",
+        name: 'Extra Stickers BR',
+        bio: 'Figurinhas e treino sem drama.',
+        avatarUrl: '/avatars/extrastickersbr.jpg',
         gymId: ids.gyms.gymx,
-        fitnessGoal: "72 kg -> 80 kg",
+        fitnessGoal: '72 kg -> 80 kg',
         cityId: 2408003,
-        locationUrl: "https://maps.google.com",
-        weight: "72 kg",
-        bodyFat: "18%",
-        arm: "36 cm",
+        locationUrl: 'https://maps.google.com',
+        weight: '72 kg',
+        bodyFat: '18%',
+        arm: '36 cm',
         showGym: true,
         showCity: true,
-        showPhysicalInfo: true
+        showPhysicalInfo: true,
       },
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175f002",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175f002',
         userId: ids.users.fabio,
-        name: "Fabio",
-        bio: "Projeto 80kg em andamento.",
-        avatarUrl: "/avatars/fabiocut.jpg",
+        name: 'Fabio',
+        bio: 'Projeto 80kg em andamento.',
+        avatarUrl: '/avatars/fabiocut.jpg',
         gymId: ids.gyms.iron,
-        fitnessGoal: "70 kg -> 80 kg",
+        fitnessGoal: '70 kg -> 80 kg',
         showGym: false,
         showCity: false,
-        showPhysicalInfo: false
+        showPhysicalInfo: false,
       },
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175f003",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175f003',
         userId: ids.users.coach,
-        name: "Coach Frango",
-        bio: "Consistencia acima de tudo.",
+        name: 'Coach Frango',
+        bio: 'Consistencia acima de tudo.',
         showGym: true,
         showCity: false,
-        showPhysicalInfo: true
-      }
-    ]
+        showPhysicalInfo: true,
+      },
+    ],
   });
 
   await prisma.post.createMany({
@@ -121,85 +121,85 @@ async function main() {
       {
         id: ids.posts.p1,
         authorId: ids.users.extra,
-        caption: "Treino finalizado. Semana comecou forte."
+        caption: 'Treino finalizado. Semana comecou forte.',
       },
       {
         id: ids.posts.p2,
         authorId: ids.users.fabio,
-        caption: "Subindo carga com tecnica e paciencia."
+        caption: 'Subindo carga com tecnica e paciencia.',
       },
       {
         id: ids.posts.p3,
         authorId: ids.users.coach,
-        caption: "Frango disciplinado voa mais alto."
-      }
-    ]
+        caption: 'Frango disciplinado voa mais alto.',
+      },
+    ],
   });
 
   await prisma.postMedia.createMany({
     data: [
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175a001",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175a001',
         postId: ids.posts.p1,
-        mediaUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1200",
-        mediaType: "IMAGE",
-        order: 0
+        mediaUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1200',
+        mediaType: 'IMAGE',
+        order: 0,
       },
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175a002",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175a002',
         postId: ids.posts.p2,
-        mediaUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200",
-        mediaType: "IMAGE",
-        order: 0
+        mediaUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200',
+        mediaType: 'IMAGE',
+        order: 0,
       },
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175a003",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175a003',
         postId: ids.posts.p3,
-        mediaUrl: "https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?q=80&w=1200",
-        mediaType: "IMAGE",
-        order: 0
-      }
-    ]
+        mediaUrl: 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?q=80&w=1200',
+        mediaType: 'IMAGE',
+        order: 0,
+      },
+    ],
   });
 
   await prisma.follow.createMany({
     data: [
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175b101",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175b101',
         followerId: ids.users.fabio,
-        followingId: ids.users.extra
+        followingId: ids.users.extra,
       },
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175b102",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175b102',
         followerId: ids.users.coach,
-        followingId: ids.users.extra
-      }
-    ]
+        followingId: ids.users.extra,
+      },
+    ],
   });
 
   await prisma.like.createMany({
     data: [
-      { id: "01929f00-9f98-7c3d-8cf3-b64f3175b201", userId: ids.users.extra, postId: ids.posts.p2 },
-      { id: "01929f00-9f98-7c3d-8cf3-b64f3175b202", userId: ids.users.fabio, postId: ids.posts.p1 },
-      { id: "01929f00-9f98-7c3d-8cf3-b64f3175b203", userId: ids.users.coach, postId: ids.posts.p1 }
-    ]
+      { id: '01929f00-9f98-7c3d-8cf3-b64f3175b201', userId: ids.users.extra, postId: ids.posts.p2 },
+      { id: '01929f00-9f98-7c3d-8cf3-b64f3175b202', userId: ids.users.fabio, postId: ids.posts.p1 },
+      { id: '01929f00-9f98-7c3d-8cf3-b64f3175b203', userId: ids.users.coach, postId: ids.posts.p1 },
+    ],
   });
 
   await prisma.comment.createMany({
     data: [
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175b301",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175b301',
         postId: ids.posts.p1,
         authorId: ids.users.fabio,
-        content: "Boa! Mantem o ritmo."
+        content: 'Boa! Mantem o ritmo.',
       },
       {
-        id: "01929f00-9f98-7c3d-8cf3-b64f3175b302",
+        id: '01929f00-9f98-7c3d-8cf3-b64f3175b302',
         postId: ids.posts.p2,
         authorId: ids.users.extra,
-        content: "Consistencia absurda."
-      }
-    ]
+        content: 'Consistencia absurda.',
+      },
+    ],
   });
 }
 

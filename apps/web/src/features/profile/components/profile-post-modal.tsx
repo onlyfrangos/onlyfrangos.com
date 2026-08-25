@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { Bookmark, ChevronLeft, ChevronRight, Heart, MessageCircle, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { apiFetch } from "../../../lib/auth";
-import { PostComments } from "../../feed/components/post-comments";
-import type { ProfilePostItem } from "../types";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Bookmark, ChevronLeft, ChevronRight, Heart, MessageCircle, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { apiFetch } from '../../../lib/auth';
+import { PostComments } from '../../feed/components/post-comments';
+import type { ProfilePostItem } from '../types';
 
 type LikesState = { liked: boolean; count: number };
 
@@ -16,7 +16,7 @@ export function ProfilePostModal({
   avatarUrl,
   canManage,
   onCommentCountChange,
-  onClose
+  onClose,
 }: {
   post: ProfilePostItem;
   username: string;
@@ -31,23 +31,23 @@ export function ProfilePostModal({
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === 'Escape') onClose();
     };
-    document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener('keydown', closeOnEscape);
     void apiFetch(`/posts/${post.id}/likes`).then(async (response) => {
       if (response.ok) setLikes((await response.json()) as LikesState);
     });
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener('keydown', closeOnEscape);
     };
   }, [onClose, post.id]);
 
   async function toggleLike() {
     const response = await apiFetch(`/posts/${post.id}/likes`, {
-      method: likes.liked ? "DELETE" : "POST"
+      method: likes.liked ? 'DELETE' : 'POST',
     });
     if (response.ok)
       setLikes((value) => ({ liked: !value.liked, count: value.count + (value.liked ? -1 : 1) }));
@@ -118,9 +118,7 @@ export function ProfilePostModal({
             <Link href={`/${username}`} className="text-sm font-semibold">
               @{username}
             </Link>
-            <p>
-              {/* {post.caption} */}
-            </p>
+            <p>{/* {post.caption} */}</p>
           </header>
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="flex gap-3 p-4 text-sm">
@@ -143,9 +141,9 @@ export function ProfilePostModal({
                 <button
                   type="button"
                   onClick={() => void toggleLike()}
-                  aria-label={likes.liked ? "Descurtir" : "Curtir"}
+                  aria-label={likes.liked ? 'Descurtir' : 'Curtir'}
                 >
-                  <Heart className={`h-6 w-6 ${likes.liked ? "fill-red-500 text-red-500" : ""}`} />
+                  <Heart className={`h-6 w-6 ${likes.liked ? 'fill-red-500 text-red-500' : ''}`} />
                 </button>
                 <span className="inline-flex items-center gap-1.5">
                   <MessageCircle className="h-6 w-6" />
@@ -157,7 +155,7 @@ export function ProfilePostModal({
               </button>
             </div>
             <p className="mt-3 text-sm font-semibold">
-              {likes.count} {likes.count === 1 ? "curtida" : "curtidas"}
+              {likes.count} {likes.count === 1 ? 'curtida' : 'curtidas'}
             </p>
             <p className="mt-1 text-xs uppercase text-of-muted">{post.createdAtLabel}</p>
           </footer>

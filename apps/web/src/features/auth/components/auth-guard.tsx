@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
-import { getAuthSession, refreshAuthSession } from "../../../lib/auth";
+import { getAuthSession, refreshAuthSession } from '../../../lib/auth';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -33,7 +33,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const next = encodeURIComponent(pathname || "/feed");
+      const next = encodeURIComponent(pathname || '/feed');
       router.replace(`/login?redirect=${next}`);
     }
 
