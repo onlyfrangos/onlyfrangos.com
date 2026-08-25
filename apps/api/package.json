@@ -7,7 +7,7 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "lint": "echo 'api lint setup pending'",
-    "test": "jest",
+    "test": "jest --watchman=false",
     "format": "prettier --check .",
     "prisma:generate": "cd ../.. && prisma generate --schema prisma/schema.prisma",
     "prisma:migrate": "cd ../.. && prisma migrate dev --schema prisma/schema.prisma",

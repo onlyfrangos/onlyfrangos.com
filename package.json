@@ -7,17 +7,26 @@
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "lint": "turbo run lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "turbo run test",
-    "format": "turbo run format",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm --filter @onlyfrangos/api exec tsc --noEmit --incremental false && pnpm --filter @onlyfrangos/web exec tsc --noEmit --incremental false",
+    "quality": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test",
     "db:generate": "pnpm --filter @onlyfrangos/api prisma:generate",
     "db:migrate": "pnpm --filter @onlyfrangos/api prisma:migrate",
     "db:seed": "pnpm --filter @onlyfrangos/api prisma:seed"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
     "@prisma/client": "^6.0.1",
+    "@types/node": "^22.10.1",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
     "prisma": "^6.0.1",
-    "turbo": "^2.0.12"
+    "turbo": "^2.0.12",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
   }
 }

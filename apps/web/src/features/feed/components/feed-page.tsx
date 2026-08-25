@@ -1,19 +1,19 @@
-import type { FeedPost, UserSuggestion } from "@onlyfrangos/types";
+import type { FeedPost, UserSuggestion } from '@onlyfrangos/types';
 
-import { AppShell } from "../../../components/layout/app-shell";
-import { sdk } from "../../../lib/sdk";
-import { ProfileMobileNavigation, ProfileSidebar } from "../../profile/components/profile-sidebar";
-import { ProfileTopBar } from "../../profile/components/profile-top-bar";
+import { AppShell } from '../../../components/layout/app-shell';
+import { sdk } from '../../../lib/sdk';
+import { ProfileMobileNavigation, ProfileSidebar } from '../../profile/components/profile-sidebar';
+import { ProfileTopBar } from '../../profile/components/profile-top-bar';
 
-import { FeedRightAside } from "./feed-right-aside";
+import { FeedRightAside } from './feed-right-aside';
 
-import { FeedContent } from "./feed-content";
+import { FeedContent } from './feed-content';
 
 async function loadFeed(): Promise<FeedPost[] | null> {
   try {
     const result = await sdk.getFeed(20);
     return result.items;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }
@@ -38,7 +38,7 @@ export async function FeedPage() {
     );
   }
 
-  const viewerUsername = posts[0]?.author.username ?? "extrastickersbr";
+  const viewerUsername = posts[0]?.author.username ?? 'extrastickersbr';
 
   return (
     <AppShell
@@ -47,10 +47,10 @@ export async function FeedPage() {
       rightAside={<FeedRightAside suggestions={suggestions} />}
       mobileNavigation={<ProfileMobileNavigation username={viewerUsername} />}
       mobileNavItems={[
-        { href: "/feed", label: "Inicio" },
-        { href: "/profile", label: "Perfil" },
-        { href: "#", label: "Explorar" },
-        { href: "#", label: "Alertas" }
+        { href: '/feed', label: 'Inicio' },
+        { href: '/profile', label: 'Perfil' },
+        { href: '#', label: 'Explorar' },
+        { href: '#', label: 'Alertas' },
       ]}
     >
       <ProfileTopBar />

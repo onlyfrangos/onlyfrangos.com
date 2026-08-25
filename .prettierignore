@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.next/
+coverage/
+.turbo/
+.cache/
+generated/
+**/*.generated.*
+prisma/migrations/
+pnpm-lock.yaml
+apps/web/next-env.d.ts
+apps/api/uploads/
+.codex/agents/*.toml
