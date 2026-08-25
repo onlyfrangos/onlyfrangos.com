@@ -121,13 +121,13 @@ export function ProfileSidebar({ username }: ProfileSidebarProps) {
           })}
       </nav>
 
-      <button
-        type="button"
+      <Link
+        href="/feed?compose=1"
         className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-of-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-of-primaryHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/70"
       >
         <Plus className="h-4 w-4" />
         Criar publicacao
-      </button>
+      </Link>
 
       <div className="relative mt-auto rounded-xl border border-of-border bg-black/20 p-1 px-2">
         {isMenuOpen ? (
@@ -247,13 +247,14 @@ export function ProfileMobileNavigation({ username }: ProfileSidebarProps) {
                 })}
             </nav>
 
-            <button
-              type="button"
+            <Link
+              href="/feed?compose=1"
+              onClick={() => setIsOpen(false)}
               className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-of-primary px-4 py-3 text-sm font-semibold text-white hover:bg-of-primaryHover"
             >
               <Plus className="h-4 w-4" />
               Criar publicacao
-            </button>
+            </Link>
 
             <div className="mt-3 flex items-center gap-2 border-t border-of-border pt-3">
               <Link

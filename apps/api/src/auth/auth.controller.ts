@@ -2,16 +2,21 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseUUIDPipe,
   Post,
   Query,
   Req,
   Res,
-  UnauthorizedException
+  UnauthorizedException,
+  UseGuards
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
 import { AuthService } from "./auth.service";
+import { AdminGuard } from "./admin.guard";
+import { JwtAuthGuard } from "./jwt-auth.guard";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 
@@ -79,6 +84,21 @@ export class AuthController {
   @Post("login")
   async login(@Body() body: LoginDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.authService.login(body);
+    response.cookie(REFRESH_COOKIE_NAME, result.refreshToken, this.refreshCookieOptions());
+
+    return {
+      user: result.user,
+      accessToken: result.accessToken
+    };
+  }
+
+  @Post("admin/impersonate/:id")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async impersonate(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) response: Response
+  ) {
+    const result = await this.authService.impersonate(id);
     response.cookie(REFRESH_COOKIE_NAME, result.refreshToken, this.refreshCookieOptions());
 
     return {

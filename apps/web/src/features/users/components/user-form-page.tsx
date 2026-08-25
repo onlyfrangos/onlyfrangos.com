@@ -73,8 +73,8 @@ export function UserFormPage({ userId }: { userId?: string }) {
           username: form.username,
           email: form.email,
           ...(form.password ? { password: form.password } : {}),
-          age: Number(form.age),
-          cityId: Number(form.cityId),
+          age: form.age ? Number(form.age) : null,
+          cityId: form.cityId ? Number(form.cityId) : null,
           isAdmin: form.isAdmin
         })
       });
@@ -129,8 +129,10 @@ export function UserFormPage({ userId }: { userId?: string }) {
                 onChange={(event) => setForm({ ...form, name: event.target.value })}
                 className={inputClass}
                 minLength={2}
+                maxLength={30}
                 required
               />
+              <span className="mt-1 block text-right text-xs text-of-muted">{form.name.length}/30</span>
             </Field>
             <Field label="Nome de usuário">
               <input
@@ -143,8 +145,10 @@ export function UserFormPage({ userId }: { userId?: string }) {
                 }
                 className={inputClass}
                 minLength={3}
+                maxLength={30}
                 required
               />
+              <span className="mt-1 block text-right text-xs text-of-muted">{form.username.length}/30</span>
             </Field>
             <Field label="Idade">
               <input
@@ -154,7 +158,7 @@ export function UserFormPage({ userId }: { userId?: string }) {
                 className={inputClass}
                 min={13}
                 max={120}
-                required
+                placeholder="Opcional"
               />
             </Field>
             <Field label="E-mail" wide>

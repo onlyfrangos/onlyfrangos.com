@@ -14,6 +14,7 @@ type UploadedImage = {
 export class AvatarStorageService {
   private readonly localDirectory = join(process.cwd(), "uploads", "avatars");
   private readonly localGymDirectory = join(process.cwd(), "uploads", "gyms");
+  private readonly localPostDirectory = join(process.cwd(), "uploads", "posts");
 
   async save(userId: string, file: UploadedImage) {
     const extension = this.extensionFor(file);
@@ -43,12 +44,28 @@ export class AvatarStorageService {
     return `${apiUrl}/api/v1/gyms/image-files/${filename}`;
   }
 
+  async savePostImage(postId: string, file: UploadedImage) {
+    const extension = this.extensionFor(file);
+    const key = `post-images/${postId}-${randomUUID()}${extension}`;
+    if (process.env.NODE_ENV === "production") return this.saveToR2(key, file);
+
+    await mkdir(this.localPostDirectory, { recursive: true });
+    const filename = key.replace("post-images/", "");
+    await writeFile(join(this.localPostDirectory, filename), file.buffer);
+    const apiUrl = (process.env.API_PUBLIC_URL ?? "http://localhost:3001").replace(/\/$/, "");
+    return `${apiUrl}/api/v1/posts/image-files/${filename}`;
+  }
+
   async getLocalFile(filename: string) {
     return this.getLocalImage(this.localDirectory, filename, "Avatar not found");
   }
 
   async getLocalGymFile(filename: string) {
     return this.getLocalImage(this.localGymDirectory, filename, "Gym image not found");
+  }
+
+  async getLocalPostFile(filename: string) {
+    return this.getLocalImage(this.localPostDirectory, filename, "Post image not found");
   }
 
   private async getLocalImage(directory: string, filename: string, message: string) {

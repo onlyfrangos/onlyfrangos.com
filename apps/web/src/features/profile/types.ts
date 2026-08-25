@@ -35,7 +35,9 @@ export type ProfilePostItem = {
   id: string;
   caption: string;
   imageUrl: string;
+  imageUrls: string[];
   createdAtLabel: string;
+  createdAt: string;
   likeCount: number;
   commentCount: number;
   hashtags: string[];

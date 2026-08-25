@@ -11,8 +11,7 @@ export class FeedService {
       orderBy: { createdAt: "desc" },
       include: {
         media: {
-          orderBy: { order: "asc" },
-          take: 1
+          orderBy: { order: "asc" }
         },
         author: {
           include: {
@@ -34,14 +33,15 @@ export class FeedService {
 
     const items = page.map((post) => {
       const author = post.author;
-      const firstMedia = post.media[0];
+      const imageUrls = post.media.map((item) => item.mediaUrl);
 
       const profile = author.profile;
 
       return {
         id: post.id,
         caption: post.caption,
-        imageUrl: firstMedia?.mediaUrl ?? "",
+        imageUrl: imageUrls[0] ?? "",
+        imageUrls,
         createdAt: post.createdAt.toISOString(),
         likeCount: post._count.likes,
         commentCount: post._count.comments,

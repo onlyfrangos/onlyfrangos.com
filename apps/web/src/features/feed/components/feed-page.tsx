@@ -7,7 +7,7 @@ import { ProfileTopBar } from "../../profile/components/profile-top-bar";
 
 import { FeedRightAside } from "./feed-right-aside";
 
-import { PostCard } from "./post-card";
+import { FeedContent } from "./feed-content";
 
 async function loadFeed(): Promise<FeedPost[] | null> {
   try {
@@ -55,15 +55,7 @@ export async function FeedPage() {
     >
       <ProfileTopBar />
 
-      <section className="space-y-4">
-        {posts.length === 0 ? (
-          <article className="rounded-2xl border border-of-border bg-of-surface/90 p-8 text-center text-of-muted">
-            Nenhum post por enquanto. Volte em alguns minutos.
-          </article>
-        ) : (
-          posts.map((post) => <PostCard key={post.id} post={post} />)
-        )}
-      </section>
+      <FeedContent posts={posts} />
     </AppShell>
   );
 }

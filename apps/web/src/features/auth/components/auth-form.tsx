@@ -134,8 +134,10 @@ export function AuthForm({ mode }: AuthFormProps) {
                   className={inputClassName}
                   placeholder="Seu nome completo"
                   minLength={2}
+                  maxLength={30}
                   required
                 />
+                <p className="mt-1 text-right text-xs text-of-muted">{form.fullName.length}/30</p>
               </Field>
               <Field label="Nome de usuário" htmlFor="username">
                 <input
@@ -152,6 +154,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                   className={inputClassName}
                   placeholder="seu_usuario"
                   minLength={3}
+                  maxLength={30}
                   pattern="[a-z0-9._]+"
                   aria-describedby="username-status"
                   required
@@ -161,7 +164,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                   className={`mt-1.5 text-xs ${usernameStatus === "available" ? "text-green-400" : usernameStatus === "unavailable" || usernameStatus === "error" ? "text-red-400" : "text-of-muted"}`}
                   aria-live="polite"
                 >
-                  {usernameHint}
+                  {usernameHint} <span className="float-right">{form.username.length}/30</span>
                 </p>
               </Field>
               <Field label="Idade" htmlFor="age">

@@ -16,7 +16,12 @@ const body = Manrope({
 
 export const metadata: Metadata = {
   title: "OnlyFrangos",
-  description: "Fitness social network"
+  description: "Fitness social network",
+  icons: {
+    icon: "/branding/onlyfrangos-logo.png",
+    shortcut: "/branding/onlyfrangos-logo.png",
+    apple: "/branding/onlyfrangos-logo.png"
+  }
 };
 
 export default function RootLayout({

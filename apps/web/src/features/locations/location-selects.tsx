@@ -55,10 +55,13 @@ export function LocationSelects({
         <CustomSelect
           value={stateId}
           onChange={onStateChange}
-          options={states.map((state) => ({
-            value: String(state.codigoUf),
-            label: `${state.nome} (${state.uf})`
-          }))}
+          options={[
+            { value: "", label: "Não informar" },
+            ...states.map((state) => ({
+              value: String(state.codigoUf),
+              label: `${state.nome} (${state.uf})`
+            }))
+          ]}
           placeholder="Selecione o estado"
           ariaLabel="Estado"
           className={className}
@@ -69,7 +72,10 @@ export function LocationSelects({
         <CustomSelect
           value={cityId}
           onChange={onCityChange}
-          options={cities.map((city) => ({ value: String(city.codigoIbge), label: city.nome }))}
+          options={[
+            { value: "", label: "Não informar" },
+            ...cities.map((city) => ({ value: String(city.codigoIbge), label: city.nome }))
+          ]}
           placeholder="Selecione a cidade"
           ariaLabel="Cidade"
           className={className}

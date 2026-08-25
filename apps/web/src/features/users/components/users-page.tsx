@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Pencil, Plus, Search, ShieldCheck, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogIn, Pencil, Plus, Search, ShieldCheck, Trash2 } from "lucide-react";
 import { useDeferredValue, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { AppShell } from "../../../components/layout/app-shell";
-import { apiFetch, getAuthSession } from "../../../lib/auth";
+import { ConfirmModal } from "../../../components/ui/confirm-modal";
+import { apiFetch, getAuthSession, saveAuthSession, type AuthSession } from "../../../lib/auth";
 import { resolveAvatarUrl } from "../../../lib/avatar";
 import { ProfileMobileNavigation, ProfileSidebar } from "../../profile/components/profile-sidebar";
 import type { AdminUsersPage } from "../types";
@@ -21,6 +22,9 @@ export function UsersPage() {
   const [data, setData] = useState<AdminUsersPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!session?.user.isAdmin) router.replace("/feed");
@@ -55,28 +59,50 @@ export function UsersPage() {
     };
   }, [deferredSearch, page, session?.user.isAdmin]);
 
-  async function remove(id: string, name: string) {
-    if (
-      !window.confirm(
-        `Excluir o usuário ${name}? Esta ação também removerá seus dados relacionados.`
-      )
-    )
-      return;
-    const response = await apiFetch(`/users/admin/${id}`, { method: "DELETE" });
+  async function remove() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const response = await apiFetch(`/users/admin/${deleteTarget.id}`, { method: "DELETE" });
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as { message?: string } | null;
       setError(payload?.message ?? "Não foi possível excluir o usuário");
+      setDeleting(false);
       return;
     }
     setData((current) =>
       current
         ? {
             ...current,
-            items: current.items.filter((item) => item.id !== id),
+            items: current.items.filter((item) => item.id !== deleteTarget.id),
             total: current.total - 1
           }
         : current
     );
+    setDeleting(false);
+    setDeleteTarget(null);
+  }
+
+  async function impersonate(id: string) {
+    setImpersonatingId(id);
+    setError("");
+    try {
+      const response = await apiFetch(`/auth/admin/impersonate/${id}`, { method: "POST" });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+        throw new Error(payload?.message ?? "Não foi possível entrar como este usuário");
+      }
+      saveAuthSession((await response.json()) as AuthSession);
+      router.push("/feed");
+      router.refresh();
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Não foi possível entrar como este usuário"
+      );
+    } finally {
+      setImpersonatingId(null);
+    }
   }
 
   const username = session?.user.username ?? "usuario";
@@ -132,9 +158,19 @@ export function UsersPage() {
             {data.items.map((user) => (
               <article
                 key={user.id}
-                className="rounded-2xl border border-of-border bg-black/15 p-4"
+                className="relative rounded-2xl border border-of-border bg-black/15 p-4"
               >
-                <div className="flex items-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => void impersonate(user.id)}
+                  disabled={impersonatingId !== null || user.id === session?.user.id}
+                  title="Entrar como este usuário"
+                  aria-label={`Entrar como ${user.name}`}
+                  className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-lg border border-of-border bg-of-surface text-of-muted transition hover:border-of-primary/50 hover:text-of-primary disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <LogIn className="h-4 w-4" />
+                </button>
+                <div className="flex items-start gap-3 pr-10">
                   <Image
                     src={resolveAvatarUrl(user.avatarUrl, user.username)}
                     alt={user.name}
@@ -144,7 +180,7 @@ export function UsersPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <h2 className="truncate font-semibold">{user.name}</h2>
+                      <Link href={`/${user.username}`} className="truncate font-semibold hover:text-of-primary">{user.name}</Link>
                       {user.isAdmin ? (
                         <ShieldCheck
                           className="h-4 w-4 shrink-0 text-of-primary"
@@ -152,8 +188,8 @@ export function UsersPage() {
                         />
                       ) : null}
                     </div>
-                    <p className="truncate text-xs text-of-muted">@{user.username}</p>
-                    <p className="mt-1 truncate text-xs text-of-muted">{user.email}</p>
+                    <Link href={`/${user.username}`} className="truncate text-xs text-of-muted">@{user.username}</Link>
+                    <p className="mt-1 block truncate text-xs text-of-muted hover:text-of-text">{user.email}</p>
                   </div>
                 </div>
                 <p className="mt-3 text-sm text-of-muted">
@@ -169,7 +205,7 @@ export function UsersPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => void remove(user.id, user.name)}
+                    onClick={() => setDeleteTarget({ id: user.id, name: user.name })}
                     disabled={user.id === session?.user.id}
                     aria-label={`Excluir ${user.name}`}
                     className="rounded-xl border border-red-500/30 px-3 py-2 text-red-400 hover:bg-red-500/10 disabled:opacity-30"
@@ -205,6 +241,15 @@ export function UsersPage() {
           </nav>
         ) : null}
       </section>
+      <ConfirmModal
+        open={Boolean(deleteTarget)}
+        title="Excluir usuário?"
+        description={`A conta de ${deleteTarget?.name ?? "este usuário"} e todos os dados relacionados serão excluídos permanentemente.`}
+        confirmLabel="Excluir usuário"
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void remove()}
+      />
     </AppShell>
   );
 }

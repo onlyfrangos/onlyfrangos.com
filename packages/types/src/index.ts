@@ -9,6 +9,7 @@ export type FeedPost = {
   id: string;
   caption: string;
   imageUrl: string;
+  imageUrls: string[];
   createdAt: string;
   likeCount: number;
   commentCount: number;
@@ -19,6 +20,7 @@ export type UserPost = {
   id: string;
   caption: string;
   imageUrl: string;
+  imageUrls: string[];
   createdAt: string;
   likeCount: number;
   commentCount: number;

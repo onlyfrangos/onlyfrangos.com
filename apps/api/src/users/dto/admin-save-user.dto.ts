@@ -14,7 +14,7 @@ import {
 export class AdminSaveUserDto {
   @IsString()
   @MinLength(2)
-  @MaxLength(100)
+  @MaxLength(30)
   name!: string;
 
   @IsString()
@@ -31,14 +31,16 @@ export class AdminSaveUserDto {
   @MinLength(6)
   password?: string;
 
+  @IsOptional()
   @IsInt()
   @Min(13)
   @Max(120)
-  age!: number;
+  age!: number | null;
 
+  @IsOptional()
   @IsInt()
   @Min(1)
-  cityId!: number;
+  cityId!: number | null;
 
   @IsBoolean()
   isAdmin!: boolean;

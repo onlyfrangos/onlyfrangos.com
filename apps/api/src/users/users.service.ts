@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 import * as bcrypt from "bcrypt";
 
 import { PrismaService } from "../shared/prisma.service";
-import { isReservedUsername, USERNAME_UNAVAILABLE_MESSAGE } from "../auth/username-policy";
+import { isReservedUsername, USERNAME_OR_EMAIL_ALREADY_EXISTS_MESSAGE, USERNAME_UNAVAILABLE_MESSAGE } from "../auth/username-policy";
 
 @Injectable()
 export class UsersService {
@@ -59,8 +59,8 @@ export class UsersService {
     username: string;
     email: string;
     password?: string;
-    age: number;
-    cityId: number;
+    age: number | null;
+    cityId: number | null;
     isAdmin: boolean;
   }) {
     if (!body.password) throw new BadRequestException("A senha é obrigatória ao criar um usuário");
@@ -93,8 +93,8 @@ export class UsersService {
       username: string;
       email: string;
       password?: string;
-      age: number;
-      cityId: number;
+      age: number | null;
+      cityId: number | null;
       isAdmin: boolean;
     }
   ) {
@@ -225,8 +225,8 @@ export class UsersService {
       name: string;
       username: string;
       email: string;
-      age: number;
-      cityId: number;
+      age: number | null;
+      cityId: number | null;
       bio?: string;
       gymId?: string | null;
       fitnessGoal?: string;
@@ -253,12 +253,12 @@ export class UsersService {
     });
 
     if (conflictingUser) {
-      throw new ConflictException("Username or email already in use");
+      throw new ConflictException(USERNAME_OR_EMAIL_ALREADY_EXISTS_MESSAGE);
     }
 
     if (body.gymId) {
       const gym = await this.prisma.gym.findUnique({ where: { id: body.gymId } });
-      if (!gym || gym.cityId !== body.cityId) {
+      if (!gym || body.cityId === null || gym.cityId !== body.cityId) {
         throw new BadRequestException("A academia precisa estar localizada na cidade informada");
       }
     }
@@ -378,8 +378,7 @@ export class UsersService {
       orderBy: { createdAt: "desc" },
       include: {
         media: {
-          orderBy: { order: "asc" },
-          take: 1
+          orderBy: { order: "asc" }
         },
         _count: {
           select: {
@@ -390,14 +389,18 @@ export class UsersService {
       }
     });
 
-    return userPosts.map((post) => ({
-      id: post.id,
-      caption: post.caption,
-      imageUrl: post.media[0]?.mediaUrl ?? "",
-      createdAt: post.createdAt.toISOString(),
-      likeCount: post._count.likes,
-      commentCount: post._count.comments
-    }));
+    return userPosts.map((post) => {
+      const imageUrls = post.media.map((item) => item.mediaUrl);
+      return {
+        id: post.id,
+        caption: post.caption,
+        imageUrl: imageUrls[0] ?? "",
+        imageUrls,
+        createdAt: post.createdAt.toISOString(),
+        likeCount: post._count.likes,
+        commentCount: post._count.comments
+      };
+    });
   }
 
   private serializeAdminUser(user: {

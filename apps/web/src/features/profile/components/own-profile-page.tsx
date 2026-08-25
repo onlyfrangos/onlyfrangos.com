@@ -2,6 +2,7 @@
 
 import type { UserPost, UserProfile } from "@onlyfrangos/types";
 import { CalendarDays, Dumbbell, Mail, MapPin, Target, UserRound } from "lucide-react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -33,7 +34,7 @@ type OwnProfile = UserProfile & {
   };
 };
 
-type GymOption = { id: string; name: string; city: string; state: string };
+type GymOption = { id: string; name: string; city: string; state: string; imageUrl: string };
 
 type EditForm = {
   name: string;
@@ -64,6 +65,7 @@ export function OwnProfilePage() {
   const [saving, setSaving] = useState(false);
   const [gyms, setGyms] = useState<GymOption[]>([]);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -126,6 +128,16 @@ export function OwnProfilePage() {
     };
   }, [editing, form?.cityId]);
 
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreviewUrl(null);
+      return;
+    }
+    const previewUrl = URL.createObjectURL(avatarFile);
+    setAvatarPreviewUrl(previewUrl);
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [avatarFile]);
+
   function openEditor() {
     if (!profile) return;
     setForm(createEditForm(profile));
@@ -148,8 +160,8 @@ export function OwnProfilePage() {
           name: form.name,
           username: form.username,
           email: form.email,
-          age: Number(form.age),
-          cityId: Number(form.cityId),
+          age: form.age ? Number(form.age) : null,
+          cityId: form.cityId ? Number(form.cityId) : null,
           bio: form.bio,
           gymId: form.gymId || null,
           fitnessGoal: form.fitnessGoal,
@@ -226,7 +238,9 @@ export function OwnProfilePage() {
     id: post.id,
     caption: post.caption,
     imageUrl: post.imageUrl,
+    imageUrls: post.imageUrls,
     createdAtLabel: formatDateLabel(post.createdAt),
+    createdAt: post.createdAt,
     likeCount: post.likeCount,
     commentCount: post.commentCount,
     hashtags: [profile.username]
@@ -316,6 +330,7 @@ export function OwnProfilePage() {
         posts={postItems}
         username={profile.username}
         avatarUrl={resolveAvatarUrl(profile.avatarUrl, profile.username)}
+        canManage
       />
 
       {editing && form ? (
@@ -324,6 +339,9 @@ export function OwnProfilePage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="edit-profile-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !saving) setEditing(false);
+          }}
         >
           <form
             onSubmit={saveProfile}
@@ -356,6 +374,19 @@ export function OwnProfilePage() {
                   onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
                   className="block w-full rounded-xl border border-dashed border-of-border bg-black/20 p-3 text-sm text-of-muted file:mr-3 file:rounded-lg file:border-0 file:bg-of-primary file:px-3 file:py-2 file:font-semibold file:text-white"
                 />
+                {avatarPreviewUrl ? (
+                  <div className="mt-3 flex items-center gap-3 rounded-xl border border-of-border bg-black/15 p-3">
+                    <Image
+                      src={avatarPreviewUrl}
+                      alt="Prévia da nova foto do perfil"
+                      width={72}
+                      height={72}
+                      unoptimized
+                      className="h-[72px] w-[72px] rounded-full object-cover"
+                    />
+                    <span className="text-sm text-of-muted">Prévia da foto selecionada</span>
+                  </div>
+                ) : null}
                 <span className="mt-1 block text-xs text-of-muted">
                   JPG, PNG ou WebP, até 5 MB.
                 </span>
@@ -365,10 +396,13 @@ export function OwnProfilePage() {
                   value={form.name}
                   onChange={(event) => setForm({ ...form, name: event.target.value })}
                   minLength={2}
-                  maxLength={100}
+                  maxLength={30}
                   required
                   className={inputClassName}
                 />
+                <span className="mt-1 block text-right text-xs text-of-muted">
+                  {form.name.length}/30
+                </span>
               </EditField>
               <EditField label="Nome de usuário">
                 <input
@@ -385,6 +419,9 @@ export function OwnProfilePage() {
                   required
                   className={inputClassName}
                 />
+                <span className="mt-1 block text-right text-xs text-of-muted">
+                  {form.username.length}/30
+                </span>
               </EditField>
               <EditField label="Idade">
                 <input
@@ -393,7 +430,7 @@ export function OwnProfilePage() {
                   onChange={(event) => setForm({ ...form, age: event.target.value })}
                   min={13}
                   max={120}
-                  required
+                  placeholder="Opcional"
                   className={inputClassName}
                 />
               </EditField>
@@ -421,12 +458,14 @@ export function OwnProfilePage() {
                     { value: "", label: "Nenhuma academia" },
                     ...gyms.map((gym) => ({
                       value: gym.id,
-                      label: `${gym.name} — ${gym.city}/${gym.state}`
+                      label: `${gym.name} — ${gym.city}/${gym.state}`,
+                      imageUrl: gym.imageUrl
                     }))
                   ]}
                   placeholder="Nenhuma academia"
                   ariaLabel="Academia"
                   className={inputClassName}
+                  disabled={!form.cityId}
                 />
                 <span className="mt-1 block text-xs text-of-muted">
                   São exibidas apenas academias da cidade informada.

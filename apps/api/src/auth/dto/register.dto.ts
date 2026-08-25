@@ -3,6 +3,7 @@ import { IsEmail, IsInt, IsString, Matches, Max, MaxLength, Min, MinLength } fro
 export class RegisterDto {
   @IsString()
   @MinLength(3)
+  @MaxLength(30)
   @Matches(/^[a-z0-9._]+$/, {
     message: "username must contain only lowercase letters, numbers, dots, and underscores"
   })
@@ -17,6 +18,7 @@ export class RegisterDto {
 
   @IsString()
   @MinLength(2)
+  @MaxLength(30)
   fullName!: string;
 
   @IsInt()

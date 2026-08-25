@@ -1,9 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
-export type SelectOption = { value: string; label: string };
+export type SelectOption = { value: string; label: string; imageUrl?: string };
 
 type CustomSelectProps = {
   value: string;
@@ -53,6 +54,11 @@ export function CustomSelect({
   return (
     <div ref={rootRef} className="relative">
       <div className="relative">
+        {!open && selected?.imageUrl ? (
+          <span className="pointer-events-none absolute left-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 overflow-hidden rounded-md border border-of-border bg-black/20">
+            <Image src={selected.imageUrl} alt="" fill sizes="32px" className="object-cover" />
+          </span>
+        ) : null}
         <input
           type="text"
           role="combobox"
@@ -78,7 +84,7 @@ export function CustomSelect({
               setOpen(false);
             }
           }}
-          className={`w-full pr-10 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+          className={`w-full pr-10 disabled:cursor-not-allowed disabled:opacity-50 ${className} ${!open && selected?.imageUrl ? "!pl-12" : ""}`}
         />
         <button
           type="button"
@@ -123,7 +129,14 @@ export function CustomSelect({
                   active ? "bg-of-primary/15 text-of-primary" : "text-of-text hover:bg-white/5"
                 }`}
               >
-                <span className="truncate">{option.label}</span>
+                <span className="flex min-w-0 items-center gap-3">
+                  {option.imageUrl ? (
+                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-of-border bg-black/20">
+                      <Image src={option.imageUrl} alt="" fill sizes="36px" className="object-cover" />
+                    </span>
+                  ) : null}
+                  <span className="truncate">{option.label}</span>
+                </span>
                 {active ? <Check className="h-4 w-4 shrink-0" /> : null}
               </button>
             );

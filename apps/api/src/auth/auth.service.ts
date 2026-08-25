@@ -4,7 +4,7 @@ import * as bcrypt from "bcrypt";
 import { randomUUID } from "node:crypto";
 
 import { PrismaService } from "../shared/prisma.service";
-import { isReservedUsername, USERNAME_UNAVAILABLE_MESSAGE } from "./username-policy";
+import { isReservedUsername, USERNAME_ALREADY_EXISTS_MESSAGE, USERNAME_UNAVAILABLE_MESSAGE } from "./username-policy";
 
 @Injectable()
 export class AuthService {
@@ -62,7 +62,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException("User already exists");
+      throw new ConflictException(USERNAME_ALREADY_EXISTS_MESSAGE);
     }
 
     const passwordHash = await bcrypt.hash(body.password, 12);
@@ -131,6 +131,23 @@ export class AuthService {
       user: safeUser,
       accessToken: this.signAccessToken(safeUser),
       refreshToken: this.signRefreshToken(safeUser)
+    };
+  }
+
+  async impersonate(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, username: true, isAdmin: true }
+    });
+
+    if (!user) {
+      throw new UnauthorizedException("Usuário não encontrado");
+    }
+
+    return {
+      user,
+      accessToken: this.signAccessToken(user),
+      refreshToken: this.signRefreshToken(user)
     };
   }
 

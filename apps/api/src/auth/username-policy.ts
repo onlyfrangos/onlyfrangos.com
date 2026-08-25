@@ -3,6 +3,7 @@ const RESERVED_USERNAME_SOURCE = [
   "admin",
   "administrator",
   "administrador",
+  "superadmin",
   "moderator",
   "moderador",
   "mod",
@@ -111,6 +112,8 @@ const RESERVED_USERNAME_SOURCE = [
 ] as const;
 
 export const USERNAME_UNAVAILABLE_MESSAGE = "Este nome de usuário não está disponível.";
+export const USERNAME_ALREADY_EXISTS_MESSAGE = "Este nome de usuário já está em uso.";
+export const USERNAME_OR_EMAIL_ALREADY_EXISTS_MESSAGE = "Este nome de usuário ou email já está em uso.";
 
 export function normalizeUsernameForPolicy(username: string) {
   return username

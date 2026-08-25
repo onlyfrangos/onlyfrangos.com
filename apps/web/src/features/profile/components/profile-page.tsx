@@ -40,7 +40,7 @@ async function loadProfile(username: string): Promise<ProfileViewData | null> {
       followingCount: formatCompactCount(profile.followingCount),
       actionMode: "visitor",
       posts: buildPosts(posts, profile),
-      tabs: [{ id: "posts", label: "Publicacoes" }],
+      tabs: [{ id: "posts", label: "Publicações" }],
       physicalSummary: [
         profile.profile.fitnessGoal
           ? { id: "goal", label: "Objetivo", value: profile.profile.fitnessGoal }
@@ -164,7 +164,9 @@ function buildPosts(posts: UserPost[], profile: UserProfile) {
     id: post.id,
     caption: post.caption,
     imageUrl: post.imageUrl,
+    imageUrls: post.imageUrls,
     createdAtLabel: formatDateLabel(post.createdAt),
+    createdAt: post.createdAt,
     likeCount: post.likeCount,
     commentCount: post.commentCount,
     hashtags: [profile.username]

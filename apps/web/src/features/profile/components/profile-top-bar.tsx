@@ -1,4 +1,5 @@
 import { Bell, Plus, Search } from "lucide-react";
+import Link from "next/link";
 
 export function ProfileTopBar() {
   return (
@@ -8,20 +9,20 @@ export function ProfileTopBar() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-of-muted" />
           <input
             type="search"
-            placeholder="Buscar frangos, academias, publicacoes..."
+            placeholder="Buscar frangos, academias, publicações..."
             className="h-10 w-full rounded-xl border border-of-border bg-black/20 pl-9 pr-3 text-sm text-of-text placeholder:text-of-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50"
-            aria-label="Buscar frangos, academias e publicacoes"
+            aria-label="Buscar frangos, academias e publicações"
           />
         </label>
 
         <div className="ml-auto flex items-center gap-2">
-          <button
-            type="button"
+          <Link
+            href="/feed?compose=1"
             className="hidden items-center gap-1.5 rounded-xl border border-of-border bg-white/5 px-3 py-2 text-sm text-of-text transition hover:bg-white/10 sm:inline-flex"
           >
             <Plus className="h-4 w-4" />
             Publicar
-          </button>
+          </Link>
 
           <button type="button" aria-label="Notificacoes" className="relative rounded-lg border border-of-border p-2 text-of-muted hover:text-of-text">
             <Bell className="h-4 w-4" />
