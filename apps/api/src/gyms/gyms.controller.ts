@@ -28,6 +28,10 @@ import { SaveGymDto } from './dto/save-gym.dto';
 const DEFAULT_GYM_IMAGE =
   'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80';
 
+type GymMemberSort = 'recent' | 'oldest' | 'followers';
+
+const gymMemberPageSize = 10;
+
 @ApiTags('gyms')
 @Controller('gyms')
 export class GymsController {
@@ -85,20 +89,31 @@ export class GymsController {
   }
 
   @Get(':id/members')
-  async getMembers(@Param('id', ParseUUIDPipe) id: string, @Query('page') pageInput?: string) {
+  async getMembers(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('page') pageInput?: string,
+    @Query('sort') sortInput?: string,
+  ) {
     const gym = await this.prisma.gym.findUnique({ where: { id }, select: { id: true } });
     if (!gym) throw new NotFoundException('Academia não encontrada');
 
     const page = Math.max(Number.parseInt(pageInput ?? '1', 10) || 1, 1);
+    const sort = this.parseMemberSort(sortInput);
+    const orderBy =
+      sort === 'oldest'
+        ? { createdAt: 'asc' as const }
+        : sort === 'followers'
+          ? { user: { followers: { _count: 'desc' as const } } }
+          : { createdAt: 'desc' as const };
     const [profiles, total] = await this.prisma.$transaction([
       this.prisma.profile.findMany({
         where: { gymId: id },
         include: {
-          user: { include: { _count: { select: { posts: true } } } },
+          user: { include: { _count: { select: { followers: true, posts: true } } } },
         },
-        orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * 20,
-        take: 20,
+        orderBy: [orderBy, { createdAt: 'desc' }],
+        skip: (page - 1) * gymMemberPageSize,
+        take: gymMemberPageSize,
       }),
       this.prisma.profile.count({ where: { gymId: id } }),
     ]);
@@ -111,13 +126,15 @@ export class GymsController {
         avatarUrl: profile.avatarUrl ?? '',
         bio: profile.bio ?? '',
         fitnessGoal: profile.fitnessGoal,
+        followerCount: profile.user._count.followers,
         postCount: profile.user._count.posts,
         memberSince: profile.createdAt.toISOString(),
       })),
       page,
-      pageSize: 20,
+      pageSize: gymMemberPageSize,
       total,
-      totalPages: Math.max(Math.ceil(total / 20), 1),
+      totalPages: Math.max(Math.ceil(total / gymMemberPageSize), 1),
+      sort,
     };
   }
 
@@ -183,6 +200,14 @@ export class GymsController {
       select: { codigoIbge: true },
     });
     if (!city) throw new NotFoundException('Cidade não encontrada');
+  }
+
+  private parseMemberSort(sortInput?: string): GymMemberSort {
+    if (sortInput === 'oldest' || sortInput === 'followers') {
+      return sortInput;
+    }
+
+    return 'recent';
   }
 
   private serialize(gym: {

@@ -123,10 +123,11 @@ export function ProfileSidebar({ username }: ProfileSidebarProps) {
 
       <Link
         href="/feed?compose=1"
+        aria-label="Criar publicação"
         className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-of-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-of-primaryHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/70"
       >
         <Plus className="h-4 w-4" />
-        Criar publicacao
+        Criar publicação
       </Link>
 
       <div className="relative mt-auto rounded-xl border border-of-border bg-black/20 p-1 px-2">
@@ -146,6 +147,7 @@ export function ProfileSidebar({ username }: ProfileSidebarProps) {
         <div className="flex items-center justify-between">
           <Link
             href="/profile"
+            aria-label={`Ver perfil de @${viewerUsername}`}
             className="flex items-center gap-3 rounded-lg px-1 py-1 text-sm hover:bg-white/5"
           >
             <div className="grid h-9 w-9 place-items-center rounded-full border border-of-border bg-of-surface text-of-muted">

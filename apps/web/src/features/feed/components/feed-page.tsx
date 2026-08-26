@@ -1,4 +1,4 @@
-import type { FeedPost } from '@onlyfrangos/types';
+import type { CursorPage, FeedPost } from '@onlyfrangos/types';
 
 import { AppShell } from '../../../components/layout/app-shell';
 import { sdk } from '../../../lib/sdk';
@@ -9,18 +9,17 @@ import { FeedRightAside } from './feed-right-aside';
 
 import { FeedContent } from './feed-content';
 
-async function loadFeed(): Promise<FeedPost[] | null> {
+async function loadFeed(): Promise<CursorPage<FeedPost> | null> {
   try {
-    const result = await sdk.getFeed(20);
-    return result.items;
+    return await sdk.getFeed(20);
   } catch (_err) {
     return null;
   }
 }
 
 export async function FeedPage() {
-  const posts = await loadFeed();
-  if (!posts) {
+  const initialPage = await loadFeed();
+  if (!initialPage) {
     return (
       <AppShell leftAside={null} rightAside={null}>
         <article className="rounded-2xl border border-of-border bg-of-surface/90 p-8 text-center text-of-muted">
@@ -30,7 +29,7 @@ export async function FeedPage() {
     );
   }
 
-  const viewerUsername = posts[0]?.author.username ?? 'extrastickersbr';
+  const viewerUsername = initialPage.items[0]?.author.username ?? 'extrastickersbr';
 
   return (
     <AppShell
@@ -47,7 +46,7 @@ export async function FeedPage() {
     >
       <ProfileTopBar />
 
-      <FeedContent posts={posts} />
+      <FeedContent posts={initialPage.items} initialNextCursor={initialPage.pageInfo.nextCursor} />
     </AppShell>
   );
 }

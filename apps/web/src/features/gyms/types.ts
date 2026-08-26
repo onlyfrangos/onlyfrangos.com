@@ -25,9 +25,12 @@ export type GymMember = {
   avatarUrl: string;
   bio: string;
   fitnessGoal: string | null;
+  followerCount: number;
   postCount: number;
   memberSince: string;
 };
+
+export type GymMemberSort = 'recent' | 'oldest' | 'followers';
 
 export type GymMembersPage = {
   items: GymMember[];
@@ -35,4 +38,5 @@ export type GymMembersPage = {
   pageSize: number;
   total: number;
   totalPages: number;
+  sort: GymMemberSort;
 };

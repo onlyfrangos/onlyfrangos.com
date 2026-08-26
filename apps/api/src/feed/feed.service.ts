@@ -7,8 +7,11 @@ export class FeedService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getFeed(limit = 20, cursor?: string) {
-    const sorted = await this.prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
+    const pageLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.trunc(limit), 1), 50) : 20;
+    const posts = await this.prisma.post.findMany({
+      take: pageLimit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         media: {
           orderBy: { order: 'asc' },
@@ -27,9 +30,9 @@ export class FeedService {
       },
     });
 
-    const startIndex = cursor ? sorted.findIndex((post) => post.id === cursor) + 1 : 0;
-    const page = sorted.slice(startIndex, startIndex + limit);
-    const nextCursor = page.length === limit ? page[page.length - 1]?.id : null;
+    const hasNextPage = posts.length > pageLimit;
+    const page = hasNextPage ? posts.slice(0, pageLimit) : posts;
+    const nextCursor = hasNextPage ? (page[page.length - 1]?.id ?? null) : null;
 
     const items = page.map((post) => {
       const author = post.author;
@@ -58,7 +61,7 @@ export class FeedService {
       items,
       pageInfo: {
         nextCursor,
-        limit,
+        limit: pageLimit,
       },
     };
   }

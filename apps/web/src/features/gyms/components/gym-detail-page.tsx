@@ -4,28 +4,34 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowLeft,
-  CalendarDays,
   ChevronLeft,
   ChevronRight,
   FileText,
   MapPin,
   Pencil,
-  Target,
   Users,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { AppShell } from '../../../components/layout/app-shell';
+import { CustomSelect } from '../../../components/ui/custom-select';
 import { apiFetch, getAuthSession } from '../../../lib/auth';
 import { resolveAvatarUrl } from '../../../lib/avatar';
 import { ProfileMobileNavigation, ProfileSidebar } from '../../profile/components/profile-sidebar';
-import type { Gym, GymMembersPage } from '../types';
+import type { Gym, GymMemberSort, GymMembersPage } from '../types';
+
+const memberSortOptions: Array<{ value: GymMemberSort; label: string }> = [
+  { value: 'recent', label: 'Recém chegados' },
+  { value: 'oldest', label: 'Mais antigos' },
+  { value: 'followers', label: 'Mais seguidores' },
+];
 
 export function GymDetailPage({ gymId }: { gymId: string }) {
   const session = getAuthSession();
   const [gym, setGym] = useState<Gym | null>(null);
   const [members, setMembers] = useState<GymMembersPage | null>(null);
   const [page, setPage] = useState(1);
+  const [memberSort, setMemberSort] = useState<GymMemberSort>('recent');
   const [loadingGym, setLoadingGym] = useState(true);
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [error, setError] = useState('');
@@ -59,7 +65,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
   useEffect(() => {
     let active = true;
     setLoadingMembers(true);
-    void apiFetch(`/gyms/${gymId}/members?page=${page}`)
+    void apiFetch(`/gyms/${gymId}/members?page=${page}&sort=${memberSort}`)
       .then(async (response) => {
         if (!response.ok) throw new Error('Não foi possível carregar os membros');
         return response.json() as Promise<GymMembersPage>;
@@ -81,7 +87,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
     return () => {
       active = false;
     };
-  }, [gymId, page]);
+  }, [gymId, memberSort, page]);
 
   const username = session?.user.username ?? 'usuario';
   const isAdmin = Boolean(session?.user.isAdmin);
@@ -161,14 +167,30 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
           </section>
 
           <section className="mt-5 rounded-2xl border border-of-border bg-of-surface/90 p-5 sm:p-7">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-of-primary">
-                Comunidade
-              </p>
-              <h2 className="mt-1 text-2xl font-semibold">Quem treina aqui</h2>
-              <p className="mt-1 text-sm text-of-muted">
-                Conheça os membros cadastrados nesta academia.
-              </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-of-primary">
+                  Comunidade
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold">Quem treina aqui</h2>
+                <p className="mt-1 text-sm text-of-muted">
+                  Conheça os membros cadastrados nesta academia.
+                </p>
+              </div>
+              <div className="w-full sm:w-52">
+                <span className="mb-1.5 block text-xs font-medium text-of-muted">Ordenar por</span>
+                <CustomSelect
+                  value={memberSort}
+                  options={memberSortOptions}
+                  onChange={(sortValue) => {
+                    setMemberSort(sortValue as GymMemberSort);
+                    setPage(1);
+                  }}
+                  placeholder="Ordenar membros"
+                  ariaLabel="Ordenar membros da academia"
+                  className="h-10 rounded-xl border border-of-border bg-black/20 px-3 text-sm text-of-text outline-none transition focus:border-of-primary focus:ring-2 focus:ring-red-500/20"
+                />
+              </div>
             </div>
             {loadingMembers ? (
               <div className="grid min-h-52 place-items-center text-sm text-of-muted">
@@ -187,42 +209,39 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
               </div>
             ) : null}
             {!loadingMembers && members?.items.length ? (
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-5">
                 {members.items.map((member) => (
                   <Link
                     key={member.id}
                     href={`/${member.username}`}
-                    className="group flex gap-4 rounded-2xl border border-of-border bg-black/15 p-4 transition hover:border-red-500/40 hover:bg-black/25"
+                    className="group min-w-0 overflow-hidden rounded-2xl border border-of-border bg-black/15 transition hover:-translate-y-0.5 hover:border-red-500/40 hover:bg-black/25"
                   >
-                    <Image
-                      src={resolveAvatarUrl(member.avatarUrl, member.username)}
-                      alt={member.name}
-                      width={72}
-                      height={72}
-                      className="h-16 w-16 shrink-0 rounded-full border border-of-border object-cover"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="truncate font-semibold group-hover:text-of-primary">
+                    <div className="relative aspect-square w-full overflow-hidden bg-white/5">
+                      <Image
+                        src={resolveAvatarUrl(member.avatarUrl, member.username)}
+                        alt={member.name}
+                        fill
+                        sizes="(max-width: 767px) 100vw, (max-width: 1279px) 33vw, 20vw"
+                        className="object-cover transition duration-300 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <div className="min-w-0 p-3">
+                      <h3 className="truncate text-sm font-semibold group-hover:text-of-primary">
                         {member.name}
                       </h3>
                       <p className="truncate text-xs text-of-muted">@{member.username}</p>
-                      {member.bio ? (
-                        <p className="mt-2 line-clamp-2 text-sm text-of-text/80">{member.bio}</p>
-                      ) : null}
-                      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-of-muted">
-                        {member.fitnessGoal ? (
-                          <span className="flex items-center gap-1">
-                            <Target className="h-3.5 w-3.5" />
-                            {member.fitnessGoal}
+                      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-of-border pt-3 text-[11px] text-of-muted">
+                        <span className="flex min-w-0 items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          <span className="truncate">
+                            {formatCompactNumber(member.followerCount)} seguidores
                           </span>
-                        ) : null}
-                        <span className="flex items-center gap-1">
-                          <FileText className="h-3.5 w-3.5" />
-                          {member.postCount} publicações
                         </span>
-                        <span className="flex items-center gap-1">
-                          <CalendarDays className="h-3.5 w-3.5" />
-                          Desde {formatYear(member.memberSince)}
+                        <span className="flex min-w-0 items-center justify-end gap-1">
+                          <FileText className="h-3 w-3" />
+                          <span className="truncate">
+                            {formatCompactNumber(member.postCount)} postagens
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -230,7 +249,7 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
                 ))}
               </div>
             ) : null}
-            {members && members.totalPages > 1 ? (
+            {members && members.total > 0 ? (
               <nav
                 className="mt-7 flex items-center justify-between border-t border-of-border pt-5"
                 aria-label="Paginação dos membros"
@@ -244,7 +263,25 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
                   <ChevronLeft className="h-4 w-4" />
                   Anterior
                 </button>
-                <span className="text-sm text-of-muted">
+                <div className="hidden items-center gap-1 sm:flex">
+                  {getVisiblePages(members.page, members.totalPages).map((pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      type="button"
+                      onClick={() => setPage(pageNumber)}
+                      aria-label={`Ir para a página ${pageNumber}`}
+                      aria-current={pageNumber === members.page ? 'page' : undefined}
+                      className={`grid h-9 w-9 place-items-center rounded-lg border text-sm transition ${
+                        pageNumber === members.page
+                          ? 'border-of-primary bg-of-primary text-white'
+                          : 'border-of-border text-of-muted hover:border-red-500/40 hover:text-of-text'
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-sm text-of-muted sm:hidden">
                   Página <strong className="text-of-text">{members.page}</strong> de{' '}
                   {members.totalPages}
                 </span>
@@ -266,6 +303,14 @@ export function GymDetailPage({ gymId }: { gymId: string }) {
   );
 }
 
-function formatYear(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', { year: 'numeric' }).format(new Date(value));
+function formatCompactNumber(value: number) {
+  return new Intl.NumberFormat('pt-BR', { notation: 'compact' }).format(value);
+}
+
+function getVisiblePages(currentPage: number, totalPages: number) {
+  const visiblePageCount = Math.min(totalPages, 5);
+  const maximumStartPage = Math.max(totalPages - visiblePageCount + 1, 1);
+  const startPage = Math.min(Math.max(currentPage - 2, 1), maximumStartPage);
+
+  return Array.from({ length: visiblePageCount }, (_, index) => startPage + index);
 }
