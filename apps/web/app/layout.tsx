@@ -14,9 +14,33 @@ const body = Manrope({
   variable: '--font-body',
 });
 
+const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://onlyfrangos.com');
+const siteDescription =
+  'Rede social fitness brasileira para compartilhar treinos, evolução e conquistas.';
+
 export const metadata: Metadata = {
-  title: 'OnlyFrangos',
-  description: 'Fitness social network',
+  metadataBase: siteUrl,
+  applicationName: 'OnlyFrangos',
+  title: {
+    default: 'OnlyFrangos',
+    template: '%s | OnlyFrangos',
+  },
+  description: siteDescription,
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: '/',
+    siteName: 'OnlyFrangos',
+    title: 'OnlyFrangos',
+    description: siteDescription,
+    images: ['/branding/onlyfrangos-logo.png'],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'OnlyFrangos',
+    description: siteDescription,
+    images: ['/branding/onlyfrangos-logo.png'],
+  },
   icons: {
     icon: '/branding/onlyfrangos-logo.png',
     shortcut: '/branding/onlyfrangos-logo.png',

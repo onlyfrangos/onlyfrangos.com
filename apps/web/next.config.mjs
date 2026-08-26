@@ -3,6 +3,16 @@ const r2PublicUrl = process.env.R2_PUBLIC_URL ? new URL(process.env.R2_PUBLIC_UR
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@onlyfrangos/sdk', '@onlyfrangos/types'],
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.onlyfrangos.com' }],
+        destination: 'https://onlyfrangos.com/:path*',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

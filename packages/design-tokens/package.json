@@ -1,0 +1,20 @@
+{
+  "name": "@onlyfrangos/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint src --max-warnings=0",
+    "test": "echo 'design-tokens: no runtime tests'",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --check ."
+  },
+  "devDependencies": {
+    "@onlyfrangos/config": "workspace:*",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}

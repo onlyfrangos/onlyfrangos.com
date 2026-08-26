@@ -69,6 +69,16 @@ Execute a aplicação:
 pnpm dev
 ```
 
+## Domínios de produção
+
+- aplicação web: `https://onlyfrangos.com`;
+- API: `https://api.onlyfrangos.com`;
+- imagens públicas: `https://img.onlyfrangos.com`.
+
+O host `www.onlyfrangos.com`, se apontado para a aplicação, é redirecionado permanentemente para o
+domínio principal. As variáveis correspondentes e seus valores de desenvolvimento estão descritos
+em `.env.example`.
+
 ## Como contribuir
 
 Quer ajudar o OnlyFrangos?

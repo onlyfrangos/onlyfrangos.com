@@ -10,7 +10,11 @@ export type AuthSession = {
   user: AuthUser;
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3001/api/v1';
+const defaultBaseUrl =
+  process.env.NODE_ENV === 'production'
+    ? 'https://api.onlyfrangos.com/api/v1'
+    : 'http://localhost:3001/api/v1';
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? defaultBaseUrl;
 let inMemorySession: AuthSession | null = null;
 
 export function saveAuthSession(session: AuthSession) {

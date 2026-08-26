@@ -8,8 +8,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const webPort = process.env.WEB_PORT ?? '3000';
+  const webPublicUrl = (process.env.WEB_PUBLIC_URL ?? 'https://onlyfrangos.com').replace(/\/$/, '');
   app.enableCors({
-    origin: [`http://localhost:${webPort}`, `http://127.0.0.1:${webPort}`],
+    origin: [webPublicUrl, `http://localhost:${webPort}`, `http://127.0.0.1:${webPort}`],
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -28,6 +29,10 @@ async function bootstrap() {
     .setTitle('OnlyFrangos API')
     .setDescription('MVP API for feed and profile')
     .setVersion('0.1.0')
+    .addServer(
+      (process.env.API_PUBLIC_URL ?? 'https://api.onlyfrangos.com').replace(/\/$/, ''),
+      'API pública',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
