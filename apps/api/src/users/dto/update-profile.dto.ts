@@ -31,7 +31,7 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsInt()
-  @Min(13)
+  @Min(18)
   @Max(120)
   age!: number | null;
 

@@ -18,7 +18,7 @@
 - [x] `MOB-004` — Estados loading, vazio, erro e offline.
 - [x] `MOB-005` — Ambientes local, preview e production.
 - [x] `MOB-006` — Test harness e mocks de API.
-- [ ] Fase 2 — sessão, contratos e SDK.
+- [~] Fase 2 — implementação concluída; validação manual Android/iOS pendente.
 
 ## Fundação e design system
 

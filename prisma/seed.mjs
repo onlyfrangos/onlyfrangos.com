@@ -176,20 +176,20 @@ function createGyms() {
 function createUsersAndProfiles(gyms) {
   const featuredUsers = [
     {
-      email: 'extra@onlyfrangos.dev',
-      username: 'extrastickersbr',
-      name: 'Extra Stickers BR',
-      avatarUrl: '/avatars/extrastickersbr.jpg',
+      email: 'flads@onlyfrangos.com',
+      username: 'flads',
+      name: 'Flads',
+      avatarUrl: '/avatars/flads.jpg',
       isAdmin: true,
     },
     {
-      email: 'fabio@onlyfrangos.dev',
+      email: 'fabio@onlyfrangos.com',
       username: 'fabiocut',
       name: 'Fabio',
       avatarUrl: '/avatars/fabiocut.jpg',
     },
     {
-      email: 'coach@onlyfrangos.dev',
+      email: 'coach@onlyfrangos.com',
       username: 'coachfrango',
       name: 'Coach Frango',
       avatarUrl: avatarImageUrls[2],
@@ -210,7 +210,7 @@ function createUsersAndProfiles(gyms) {
 
     users.push({
       id: userId,
-      email: featuredUser?.email ?? `${username}@onlyfrangos.dev`,
+      email: featuredUser?.email ?? `${username}@onlyfrangos.com`,
       username,
       passwordHash: seedPasswordHash,
       isAdmin: featuredUser?.isAdmin ?? false,

@@ -1,9 +1,17 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SessionClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
 
 import { PrismaService } from '../shared/prisma.service';
+import { PolicyAcceptanceDto } from './dto/policy-acceptance.dto';
+import { SessionMetadata, SessionService } from './session.service';
 import {
   isReservedUsername,
   USERNAME_ALREADY_EXISTS_MESSAGE,
@@ -15,6 +23,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly sessionService: SessionService,
   ) {}
 
   private signAccessToken(user: { id: string; email: string; username: string }) {
@@ -24,8 +33,13 @@ export class AuthService {
     );
   }
 
-  private signRefreshToken(user: { id: string; email: string; username: string }) {
-    return this.jwtService.sign({ sub: user.id, type: 'refresh' }, { expiresIn: '7d' });
+  getCurrentPolicyVersions() {
+    return {
+      termsVersion: process.env.TERMS_VERSION ?? '2026-08-25',
+      privacyPolicyVersion: process.env.PRIVACY_POLICY_VERSION ?? '2026-08-25',
+      communityGuidelinesVersion: process.env.COMMUNITY_GUIDELINES_VERSION ?? '2026-08-25',
+      minimumAge: 18,
+    };
   }
 
   async isUsernameAvailable(username: string) {
@@ -43,14 +57,18 @@ export class AuthService {
     return { username: normalizedUsername, available: !existingUser };
   }
 
-  async register(body: {
-    username: string;
-    email: string;
-    password: string;
-    fullName: string;
-    age: number;
-    cityId: number;
-  }) {
+  async register(
+    body: {
+      username: string;
+      email: string;
+      password: string;
+      fullName: string;
+      age: number;
+      cityId: number;
+      policyAcceptance?: PolicyAcceptanceDto;
+    },
+    sessionMetadata: SessionMetadata = { clientType: SessionClient.WEB },
+  ) {
     const normalizedUsername = body.username.trim().toLowerCase();
     const normalizedEmail = body.email.trim().toLowerCase();
     const normalizedFullName = body.fullName.trim();
@@ -71,6 +89,10 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(body.password, 12);
 
+    if (body.policyAcceptance) {
+      this.validatePolicyAcceptance(body.policyAcceptance);
+    }
+
     const user = await this.prisma.user.create({
       data: {
         id: randomUUID(),
@@ -89,6 +111,16 @@ export class AuthService {
             showPhysicalInfo: true,
           },
         },
+        ...(body.policyAcceptance
+          ? {
+              policyAcceptances: {
+                create: {
+                  id: randomUUID(),
+                  ...body.policyAcceptance,
+                },
+              },
+            }
+          : {}),
       },
       select: {
         id: true,
@@ -101,11 +133,14 @@ export class AuthService {
     return {
       user,
       accessToken: this.signAccessToken(user),
-      refreshToken: this.signRefreshToken(user),
+      refreshToken: await this.sessionService.issue(user.id, sessionMetadata),
     };
   }
 
-  async login(body: { email: string; password: string }) {
+  async login(
+    body: { email: string; password: string },
+    sessionMetadata: SessionMetadata = { clientType: SessionClient.WEB },
+  ) {
     const email = body.email.trim().toLowerCase();
 
     const user = await this.prisma.user.findUnique({
@@ -120,13 +155,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw this.invalidCredentials();
     }
 
     const passwordMatches = await bcrypt.compare(body.password, user.passwordHash);
 
     if (!passwordMatches) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw this.invalidCredentials();
     }
 
     const { passwordHash: _passwordHash, ...safeUser } = user;
@@ -134,7 +169,7 @@ export class AuthService {
     return {
       user: safeUser,
       accessToken: this.signAccessToken(safeUser),
-      refreshToken: this.signRefreshToken(safeUser),
+      refreshToken: await this.sessionService.issue(safeUser.id, sessionMetadata),
     };
   }
 
@@ -151,33 +186,58 @@ export class AuthService {
     return {
       user,
       accessToken: this.signAccessToken(user),
-      refreshToken: this.signRefreshToken(user),
+      refreshToken: await this.sessionService.issue(user.id, {
+        clientType: SessionClient.WEB,
+        deviceName: 'Admin impersonation',
+      }),
     };
   }
 
-  async refresh(refreshToken: string) {
-    try {
-      const payload = this.jwtService.verify<{ sub: string; type?: string }>(refreshToken);
+  async refresh(refreshToken: string, clientType: SessionClient) {
+    const rotatedSession = await this.sessionService.rotate(refreshToken, clientType);
+    const user = await this.prisma.user.findUnique({
+      where: { id: rotatedSession.userId },
+      select: { id: true, email: true, username: true, isAdmin: true },
+    });
 
-      if (payload.type !== 'refresh') {
-        throw new UnauthorizedException('Invalid refresh token');
-      }
-
-      const user = await this.prisma.user.findUnique({
-        where: { id: payload.sub },
-        select: { id: true, email: true, username: true, isAdmin: true },
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'INVALID_REFRESH_TOKEN',
+        message: 'A sessão é inválida, expirou ou foi revogada',
       });
-
-      if (!user) {
-        throw new UnauthorizedException('Invalid refresh token');
-      }
-
-      return {
-        user,
-        accessToken: this.signAccessToken(user),
-      };
-    } catch {
-      throw new UnauthorizedException('Invalid refresh token');
     }
+
+    return {
+      user,
+      accessToken: this.signAccessToken(user),
+      refreshToken: rotatedSession.refreshToken,
+    };
+  }
+
+  async logout(refreshToken: string, clientType: SessionClient): Promise<void> {
+    await this.sessionService.revoke(refreshToken, clientType);
+  }
+
+  private validatePolicyAcceptance(policyAcceptance: PolicyAcceptanceDto): void {
+    const currentVersions = this.getCurrentPolicyVersions();
+    const isCurrent =
+      policyAcceptance.termsVersion === currentVersions.termsVersion &&
+      policyAcceptance.privacyPolicyVersion === currentVersions.privacyPolicyVersion &&
+      policyAcceptance.communityGuidelinesVersion === currentVersions.communityGuidelinesVersion;
+
+    if (!isCurrent) {
+      throw new BadRequestException({
+        code: 'POLICY_VERSION_OUTDATED',
+        message: 'Os documentos legais foram atualizados. Revise e aceite as versões atuais.',
+        details: currentVersions,
+      });
+    }
+  }
+
+  private invalidCredentials(): UnauthorizedException {
+    return new UnauthorizedException({
+      code: 'INVALID_CREDENTIALS',
+      message: 'E-mail ou senha inválidos',
+    });
   }
 }

@@ -5,6 +5,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AppErrorBoundary } from '../components/feedback/app-error-boundary';
 import { ThemeProvider } from '../theme/theme-provider';
+import { AuthProvider } from './auth-provider';
+import { SessionRouteGuard } from '../features/auth/components/session-route-guard';
 
 export function AppProviders({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -27,7 +29,11 @@ export function AppProviders({ children }: PropsWithChildren) {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <AppErrorBoundary>{children}</AppErrorBoundary>
+            <AppErrorBoundary>
+              <AuthProvider>
+                <SessionRouteGuard>{children}</SessionRouteGuard>
+              </AuthProvider>
+            </AppErrorBoundary>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

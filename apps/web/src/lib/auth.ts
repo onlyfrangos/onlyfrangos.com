@@ -16,6 +16,7 @@ const defaultBaseUrl =
     : 'http://localhost:3001/api/v1';
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? defaultBaseUrl;
 let inMemorySession: AuthSession | null = null;
+let refreshPromise: Promise<AuthSession | null> | null = null;
 
 export function saveAuthSession(session: AuthSession) {
   inMemorySession = session;
@@ -102,6 +103,13 @@ export async function registerUser(payload: {
 }
 
 export async function refreshAuthSession() {
+  refreshPromise ??= performRefresh().finally(() => {
+    refreshPromise = null;
+  });
+  return refreshPromise;
+}
+
+async function performRefresh() {
   const response = await fetch(`${baseUrl}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',

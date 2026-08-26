@@ -2,6 +2,13 @@ jest.mock('expo-font', () => ({
   useFonts: () => [true, null],
 }));
 
+jest.mock('expo-secure-store', () => ({
+  WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'WHEN_UNLOCKED_THIS_DEVICE_ONLY',
+  deleteItemAsync: jest.fn().mockResolvedValue(undefined),
+  getItemAsync: jest.fn().mockResolvedValue(null),
+  setItemAsync: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('lucide-react-native', () => {
   function MockIcon() {
     return null;

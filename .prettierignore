@@ -11,5 +11,7 @@ generated/
 prisma/migrations/
 pnpm-lock.yaml
 apps/web/next-env.d.ts
+apps/mobile/.expo/
+apps/mobile/expo-env.d.ts
 apps/api/uploads/
 .codex/agents/*.toml

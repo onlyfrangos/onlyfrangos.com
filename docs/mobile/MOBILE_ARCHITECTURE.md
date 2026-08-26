@@ -22,14 +22,17 @@ quando seus contratos forem expandidos, `packages/sdk`.
 - Publicar intercepta a tab central e abre `app/compose.tsx` como modal;
 - Menu intercepta sua tab e abre `app/menu.tsx` como modal;
 - detalhes de post, perfil público e academia vivem na stack raiz;
-- `app/index.tsx` é provisório e abre as tabs até existir restauração de sessão na Fase 2.
+- `app/index.tsx` aguarda a restauração e direciona para autenticação ou tabs;
+- o guard global protege deep links e rotas abertas diretamente conforme o estado da sessão.
 
 ## Estado e dados
 
 - TanStack Query gerencia somente estado remoto;
 - o `QueryClient` nasce uma vez por ciclo de vida da aplicação;
 - estado efêmero permanece local ao componente;
-- autenticação e persistência segura entram na Fase 2;
+- `AuthProvider` mantém access token e usuário somente em memória;
+- `SessionCoordinator` serializa refresh e conecta autenticação injetável ao SDK;
+- somente refresh token e identificador do dispositivo são persistidos no SecureStore;
 - componentes não acessam URLs ou `process.env` diretamente: usam `src/config`.
 
 ## Tema

@@ -16,13 +16,48 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  profile   Profile?
-  posts     Post[]
-  comments  Comment[]
-  likes     Like[]
-  commentLikes CommentLike[]
-  following Follow[]  @relation("Following")
-  followers Follow[]  @relation("Followers")
+  profile           Profile?
+  posts             Post[]
+  comments          Comment[]
+  likes             Like[]
+  commentLikes      CommentLike[]
+  following         Follow[]                @relation("Following")
+  followers         Follow[]                @relation("Followers")
+  sessions          AuthenticationSession[]
+  policyAcceptances PolicyAcceptance[]
+}
+
+model AuthenticationSession {
+  id         String        @id @db.Uuid
+  userId     String        @db.Uuid
+  tokenHash  String        @unique @db.Char(64)
+  clientType SessionClient
+  deviceId   String?       @db.VarChar(128)
+  deviceName String?       @db.VarChar(100)
+  expiresAt  DateTime
+  lastUsedAt DateTime      @default(now())
+  revokedAt  DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model PolicyAcceptance {
+  id                         String   @id @db.Uuid
+  userId                     String   @db.Uuid
+  termsVersion               String   @db.VarChar(32)
+  privacyPolicyVersion       String   @db.VarChar(32)
+  communityGuidelinesVersion String   @db.VarChar(32)
+  acceptedAt                 DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, termsVersion, privacyPolicyVersion, communityGuidelinesVersion])
+  @@index([userId, acceptedAt(sort: Desc)])
 }
 
 model Profile {
@@ -113,11 +148,11 @@ model Comment {
   parentId  String?  @db.Uuid
   createdAt DateTime @default(now())
 
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies Comment[] @relation("CommentReplies")
-  likes CommentLike[]
+  post    Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent  Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[]     @relation("CommentReplies")
+  likes   CommentLike[]
 
   @@index([postId, createdAt(sort: Desc)])
 }
@@ -179,4 +214,9 @@ model City {
 
 enum MediaType {
   IMAGE
+}
+
+enum SessionClient {
+  WEB
+  MOBILE
 }

@@ -7,13 +7,14 @@ import {
   Shield,
   UserRoundPen,
 } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppScreen } from '../../../components/layout/app-screen';
 import { AppAvatar } from '../../../components/ui/app-avatar';
 import { AppSurface } from '../../../components/ui/app-surface';
 import { AppText } from '../../../components/ui/app-text';
 import { useTheme } from '../../../theme/theme-provider';
+import { useAuth } from '../../../providers/auth-provider';
 
 const menuEntries = [
   { id: 'edit-profile', label: 'Editar perfil', icon: UserRoundPen },
@@ -25,6 +26,8 @@ const menuEntries = [
 
 export function MenuPreviewScreen() {
   const theme = useTheme();
+  const { logout, session } = useAuth();
+  const username = session?.user.username ?? 'seu_usuario';
 
   return (
     <AppScreen isScrollable testID="menu-screen">
@@ -32,9 +35,9 @@ export function MenuPreviewScreen() {
         Menu
       </AppText>
       <AppSurface style={styles.identity}>
-        <AppAvatar accessibilityLabel="Seu avatar" initials="EU" />
+        <AppAvatar accessibilityLabel="Seu avatar" initials={username.slice(0, 2).toUpperCase()} />
         <View style={styles.identityCopy}>
-          <AppText weight="bold">@seu_usuario</AppText>
+          <AppText weight="bold">@{username}</AppText>
           <AppText tone="muted" variant="caption">
             Ver perfil
           </AppText>
@@ -57,12 +60,14 @@ export function MenuPreviewScreen() {
         })}
       </AppSurface>
 
-      <AppSurface style={styles.logout}>
-        <LogOut color={theme.colors.danger} size={20} />
-        <AppText tone="danger" weight="medium">
-          Sair
-        </AppText>
-      </AppSurface>
+      <Pressable accessibilityLabel="Sair" accessibilityRole="button" onPress={() => void logout()}>
+        <AppSurface style={styles.logout}>
+          <LogOut color={theme.colors.danger} size={20} />
+          <AppText tone="danger" weight="medium">
+            Sair
+          </AppText>
+        </AppSurface>
+      </Pressable>
     </AppScreen>
   );
 }

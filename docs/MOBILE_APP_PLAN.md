@@ -2,8 +2,8 @@
 
 > Documento de acompanhamento do desenvolvimento do aplicativo para iOS e Android.
 >
-> Última atualização: 25 de agosto de 2026  
-> Estado geral: Fases 0 e 1 concluídas; Fase 2 pronta para iniciar  
+> Última atualização: 26 de agosto de 2026
+> Estado geral: Fases 0 e 1 concluídas; Fase 2 implementada, com validação manual pendente
 > Responsável atual: a definir
 
 ## 1. Objetivo
@@ -276,16 +276,20 @@ checks do monorepo.
 
 **Dependência:** Fase 1. **Bloqueia todos os fluxos autenticados.**
 
-- [ ] Definir contrato de sessão mobile com rotação e revogação de refresh token.
-- [ ] Implementar migração/modelo de sessão por dispositivo na API.
-- [ ] Implementar login, cadastro, refresh e logout mobile mantendo o fluxo web compatível.
-- [ ] Guardar refresh token apenas no SecureStore e access token apenas em memória.
-- [ ] Implementar fila única de refresh para requisições simultâneas com `401`.
-- [ ] Limpar sessão local mesmo se o logout remoto falhar.
-- [ ] Expandir `packages/types` com contratos e erros discriminados do MVP.
-- [ ] Refatorar `packages/sdk` para transporte e autenticação injetáveis.
-- [ ] Cobrir rotação, expiração, revogação, repetição de refresh e concorrência com testes.
-- [ ] Configurar URL da API para emulador, simulador, dispositivo em LAN e ambientes remotos.
+- [x] Definir contrato de sessão mobile com rotação e revogação de refresh token.
+- [x] Implementar migração/modelo de sessão por dispositivo na API.
+- [x] Implementar login, cadastro, refresh e logout mobile mantendo o fluxo web compatível.
+- [x] Guardar refresh token apenas no SecureStore e access token apenas em memória.
+- [x] Implementar fila única de refresh para requisições simultâneas com `401`.
+- [x] Limpar sessão local mesmo se o logout remoto falhar.
+- [x] Expandir `packages/types` com contratos e erros discriminados do MVP.
+- [x] Refatorar `packages/sdk` para transporte e autenticação injetáveis.
+- [x] Cobrir rotação, expiração, revogação, repetição de refresh e concorrência com testes.
+- [x] Configurar URL da API para emulador, simulador, dispositivo em LAN e ambientes remotos.
+
+**Evidências:** [relatório da Fase 2](./mobile/PHASE_2_SECURE_SESSION.md), testes de sessão da API,
+SDK e coordenador mobile. A validação manual em Android e iOS permanece como gate do critério de
+saída.
 
 **Critério de saída:** cadastro, login, restauração e logout funcionam em Android e iOS; uma sessão
 revogada não pode ser renovada; a web continua autenticando normalmente.
@@ -455,7 +459,7 @@ LAN ou túnel HTTPS e as restrições de cleartext de cada plataforma.
 
 | Risco                                         | Impacto                                 | Mitigação                                                                          |
 | --------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------- |
-| Refresh baseado somente em cookie             | Bloqueia sessão confiável no app        | Resolver na Fase 2 com sessão por dispositivo, SecureStore, rotação e revogação    |
+| Refresh baseado somente em cookie             | Bloqueia sessão confiável no app        | Resolvido na Fase 2 com sessão por dispositivo, SecureStore, rotação e revogação   |
 | Contratos espalhados entre web e API          | Divergência e bugs de integração        | Consolidar respostas públicas em `packages/types` e testar o SDK                   |
 | Uma chamada de likes por card                 | Lentidão e carga N+1 no feed            | Incluir estado do viewer no payload autenticado do feed                            |
 | Upload passa pelo processo da API             | Memória, timeout e baixa escalabilidade | Comprimir no cliente agora; planejar object storage/upload direto para escala      |
@@ -510,20 +514,23 @@ senha, token ou informação física em ferramentas de analytics.
 
 ## 15. Registro de decisões
 
-| Data       | Decisão                                                | Motivo                                                                       | Estado                     |
-| ---------- | ------------------------------------------------------ | ---------------------------------------------------------------------------- | -------------------------- |
-| 2026-08-25 | Manter o mobile dentro do monorepo em `apps/mobile`    | Reuso de contratos, tooling e fluxo de contribuição                          | Proposta                   |
-| 2026-08-25 | Usar Expo + React Native + TypeScript                  | Melhor equilíbrio entre velocidade, APIs nativas e stack existente           | Proposta                   |
-| 2026-08-25 | Não compartilhar componentes React da web              | Componentes DOM/Tailwind não são portáveis nem oferecem boa UX nativa        | Proposta                   |
-| 2026-08-25 | Administração continua na web no MVP                   | Reduz escopo e prioriza a experiência da comunidade                          | Proposta                   |
-| 2026-08-25 | Substituir Explorar por Academias na navegação inicial | A API já suporta academias; busca/descoberta ainda não tem contrato completo | Proposta                   |
-| 2026-08-25 | Desenvolver Android e iOS desde o beta fechado         | Detectar diferenças de plataforma antes do release                           | Aprovada                   |
-| 2026-08-25 | Incluir denúncia, bloqueio e moderação no MVP          | Requisito de segurança para uma rede com conteúdo gerado por usuários        | Aprovada                   |
-| 2026-08-25 | Incluir recuperação e exclusão de conta no MVP         | Jornada mínima de conta e requisito atual das lojas                          | Aprovada                   |
-| 2026-08-25 | Adotar baseline etária de 18 anos no beta              | Reduz risco até existir uma política específica para menores                 | Aprovada para planejamento |
+| Data       | Decisão                                                | Motivo                                                                         | Estado                     |
+| ---------- | ------------------------------------------------------ | ------------------------------------------------------------------------------ | -------------------------- |
+| 2026-08-25 | Manter o mobile dentro do monorepo em `apps/mobile`    | Reuso de contratos, tooling e fluxo de contribuição                            | Proposta                   |
+| 2026-08-25 | Usar Expo + React Native + TypeScript                  | Melhor equilíbrio entre velocidade, APIs nativas e stack existente             | Proposta                   |
+| 2026-08-25 | Não compartilhar componentes React da web              | Componentes DOM/Tailwind não são portáveis nem oferecem boa UX nativa          | Proposta                   |
+| 2026-08-25 | Administração continua na web no MVP                   | Reduz escopo e prioriza a experiência da comunidade                            | Proposta                   |
+| 2026-08-25 | Substituir Explorar por Academias na navegação inicial | A API já suporta academias; busca/descoberta ainda não tem contrato completo   | Proposta                   |
+| 2026-08-25 | Desenvolver Android e iOS desde o beta fechado         | Detectar diferenças de plataforma antes do release                             | Aprovada                   |
+| 2026-08-25 | Incluir denúncia, bloqueio e moderação no MVP          | Requisito de segurança para uma rede com conteúdo gerado por usuários          | Aprovada                   |
+| 2026-08-25 | Incluir recuperação e exclusão de conta no MVP         | Jornada mínima de conta e requisito atual das lojas                            | Aprovada                   |
+| 2026-08-25 | Adotar baseline etária de 18 anos no beta              | Reduz risco até existir uma política específica para menores                   | Aprovada para planejamento |
+| 2026-08-26 | Usar refresh opaco, rotativo e armazenado como hash    | Permite revogação por dispositivo sem persistir a credencial em texto          | Implementada               |
+| 2026-08-26 | Migrar também a sessão web para o modelo revogável     | Mantém um único modelo de segurança e preserva o contrato por cookie HTTP-only | Implementada               |
+| 2026-08-26 | Persistir aceite versionado no cadastro mobile         | Garante evidência do documento aceito sem registrar conteúdo sensível          | Implementada               |
 
 ## 16. Próxima ação
 
-Iniciar a Fase 2 por `MOB-010`, `MOB-011`, `MOB-020` e `MOB-021`: sessão por dispositivo, contratos
-de autenticação, tipos públicos e SDK com transporte injetável. A primeira entrega demonstrável da
-fase será login, restauração e logout seguros sem regressão no fluxo web.
+Aplicar a migração da Fase 2 em um ambiente de desenvolvimento e executar cadastro, login,
+restauração e logout em Android e iOS. Com esse gate registrado, iniciar a Fase 3 por `MOB-022`,
+`MOB-023` e `MOB-024`: estado do viewer, feed paginado e card de publicação.

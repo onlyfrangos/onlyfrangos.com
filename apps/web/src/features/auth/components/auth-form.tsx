@@ -178,7 +178,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                   }
                   className={inputClassName}
                   placeholder="18"
-                  min={13}
+                  min={18}
                   max={120}
                   required
                 />

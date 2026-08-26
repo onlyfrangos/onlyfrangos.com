@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../shared/prisma.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
+import { SessionService } from './session.service';
 import { isReservedUsername, normalizeUsernameForPolicy } from './username-policy';
 
 describe('username policy', () => {
@@ -45,7 +46,11 @@ describe('reserved username enforcement', () => {
     const prisma = {
       user: { findFirst: jest.fn(), create: jest.fn() },
     } as unknown as PrismaService;
-    const service = new AuthService(prisma, { sign: jest.fn() } as unknown as JwtService);
+    const service = new AuthService(
+      prisma,
+      { sign: jest.fn() } as unknown as JwtService,
+      { issue: jest.fn() } as unknown as SessionService,
+    );
 
     await expect(
       service.register({

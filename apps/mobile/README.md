@@ -59,6 +59,23 @@ adb reverse tcp:3001 tcp:3001
 O servidor NestJS precisa aceitar a origem/configuração do ambiente e estar acessível pela rede. Em
 aparelho físico, `localhost` é o próprio telefone, não a máquina de desenvolvimento.
 
+HTTP em rede local é habilitado somente no build `development`. Preview e production exigem HTTPS.
+Depois de adicionar ou atualizar módulos nativos como SecureStore, gere um novo development build.
+
+## Sessão segura
+
+O app guarda somente o refresh token rotativo no SecureStore. O access token nunca é persistido e
+é perdido ao encerrar o processo; na próxima abertura, a sessão é restaurada pela API. Logout limpa
+o cofre mesmo se o aparelho estiver offline.
+
+Antes de testar autenticação com a API atualizada, gere o Prisma Client e aplique a migração de
+sessões no banco de desenvolvimento:
+
+```bash
+pnpm db:generate
+pnpm --filter @onlyfrangos/api prisma:migrate
+```
+
 ## Ambientes de build
 
 `app.config.ts` reconhece `APP_VARIANT`:

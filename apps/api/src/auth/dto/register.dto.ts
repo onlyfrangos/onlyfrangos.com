@@ -22,7 +22,7 @@ export class RegisterDto {
   fullName!: string;
 
   @IsInt()
-  @Min(13)
+  @Min(18)
   @Max(120)
   age!: number;
 
